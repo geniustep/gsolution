@@ -11,8 +11,10 @@
 .svn/
 .vscode/
 .swiftpm/
+.metadata
 migrate_working_dir/
-
+pubspec.lock
+analysis_options.yaml
 # IntelliJ related
 *.iml
 *.ipr
@@ -34,7 +36,11 @@ migrate_working_dir/
 .pub/
 /build/
 /android/
-
+/windows/
+/web/
+/macos/
+/linux/
+/ios/
 # Symbolication related
 app.*.symbols
 
