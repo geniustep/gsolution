@@ -1,6 +1,8 @@
 // ignore: must_be_immutable
 import 'package:gsolution/common/api_factory/models/stock/stock_picking/stock_picking_module.dart';
 import 'package:gsolution/common/config/import.dart';
+import 'package:gsolution/common/config/prefs/pref_keys.dart';
+import 'package:gsolution/common/config/prefs/pref_update.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/src/presentation/screens/invoice/account_move_windows_view_detaille.dart';
 import 'package:gsolution/src/presentation/screens/sales/saleorder/update/update_order_form.dart';
@@ -18,7 +20,6 @@ class SaleOrderViewDetaille extends StatefulWidget {
 
 class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
   PartnerModel partner = PartnerModel();
-
   bool isOrderLine = false;
   Map<String, dynamic> maps = <String, dynamic>{};
 
@@ -31,7 +32,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
     partner = PrefUtils.partners
         .firstWhere((element) => element.id == widget.salesOrder.partnerId[0]);
 
-    if (PrefUtils.orderLine.isNotEmpty || orderLine.isNotEmpty) {
+    if (PrefUtils.orderLine.isNotEmpty && orderLine.isNotEmpty) {
       orderLine.assignAll(
         PrefUtils.orderLine
             .where((e) => widget.salesOrder.orderLine.contains(e.id))
@@ -46,7 +47,6 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
             orderLine.assignAll(response);
           });
     }
-
     super.initState();
   }
 
@@ -55,10 +55,14 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Devis / ${widget.salesOrder.name}'),
+        leading: IconButton(
+            onPressed: () {
+              Get.back(result: true);
+            },
+            icon: Icon(Icons.arrow_left)),
         actions: <Widget>[
           if (widget.salesOrder.state != "sale" &&
               widget.salesOrder.state != "cancel")
-            // update Order
             IconButton(
               icon: const Icon(Icons.edit),
               onPressed: () {
@@ -79,9 +83,104 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                   id: widget.salesOrder.id);
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {},
+          Visibility(
+            visible: ['draft', 'cancel'].contains(widget.salesOrder.state),
+            child: PopupMenuButton<int>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                switch (value) {
+                  case 1:
+                    // Cancel Order
+                    Get.dialog(
+                      AlertDialog(
+                        title: const Text("Cancel Order"),
+                        content: const Text("Do you want Cancel this Order?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text("No"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              OrderModule.cancelOrderDraft(
+                                  args: widget.salesOrder.id,
+                                  onResponse: (response) async {
+                                    await PrefUpdate.updateItem(
+                                      key: "sales",
+                                      newItem: widget.salesOrder,
+                                      fromJson: (json) =>
+                                          OrderModel.fromJson(json),
+                                      toJson: (sale) => sale.toJson(),
+                                      getListFunction: () => PrefUtils.sales,
+                                    );
+                                    updateSaleOrderList(message: "Canceled");
+                                    Get.back();
+                                  });
+                            },
+                            child: const Text("Yes.. Cancel!"),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    break;
+                  case 2:
+                    // Delete Order
+                    Get.dialog(
+                      AlertDialog(
+                        title: const Text("Delete Order"),
+                        content: const Text("Do you want delete this Order?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Get.back(),
+                            child: const Text("No"),
+                          ),
+                          TextButton(
+                            onPressed: () {
+                              OrderModule.deliteOrder(
+                                  args: widget.salesOrder.id,
+                                  onResponse: (response) {
+                                    if (response) {
+                                      PrefUpdate.deleteItem(
+                                        key: PrefKeys.sales,
+                                        id: widget.salesOrder.id,
+                                        fromJson: (json) =>
+                                            OrderModel.fromJson(json),
+                                        toJson: (item) => item.toJson(),
+                                        getListFunction: () => PrefUtils.sales,
+                                      ).whenComplete(() {
+                                        Get.back(
+                                            result: true, closeOverlays: true);
+                                      });
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        SnackBar(
+                                            content: Text(
+                                                "Order successfully Deleted")),
+                                      );
+                                    }
+                                  });
+                            },
+                            child: const Text("Yes.. Delete!"),
+                          ),
+                        ],
+                      ),
+                    );
+                    break;
+                }
+              },
+              itemBuilder: (context) => [
+                if (!['sent', 'cancel'].contains(widget.salesOrder.state))
+                  PopupMenuItem(
+                    value: 1,
+                    child: Text("Annuler"),
+                  ),
+                PopupMenuItem(
+                  value: 2,
+                  child: Text("Suprimer"),
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -92,7 +191,8 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
             color: Colors.grey.shade100,
             child: Column(
               children: [
-                _buildButtonheader(),
+                if (!['cancel'].contains(widget.salesOrder.state))
+                  _buildButtonheader(),
                 const Divider(),
                 _buildButtonAction(),
                 const Divider(),
@@ -494,14 +594,19 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
                 Visibility(
-                  visible: !isOrderLineEmpty,
+                  visible: !isOrderLineEmpty &&
+                      ['draft', 'cancel'].contains(widget.salesOrder.state),
                   child: AnimatedOpacity(
                     opacity: !isOrderLineEmpty ? 1.0 : 0.5,
                     duration: const Duration(milliseconds: 300),
                     child: _buildLeftButtons(),
                   ),
                 ),
-                _buildDevisStatusWidget(),
+                Spacer(),
+                Visibility(
+                    visible: ['sent', 'sale', 'draft']
+                        .contains(widget.salesOrder.state),
+                    child: _buildDevisStatusWidget()),
               ],
             ),
           ),
@@ -650,7 +755,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
     );
   }
 
-  Future<void> updateSaleOrderList() async {
+  Future<void> updateSaleOrderList({String? message}) async {
     await OrderModule.readOrders(
         ids: [widget.salesOrder.id],
         onResponse: (resOrder) {
@@ -665,6 +770,12 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
               setState(() {
                 widget.salesOrder = order;
               });
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                    content: message != null
+                        ? Text("Order successfully $message")
+                        : Text("Order successfully Updated")),
+              );
             }
           }
         });
@@ -678,16 +789,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
           ButtonOrder(
             state: 'draft',
             order: widget.salesOrder,
-            onUpdate: (idAccount) => updateSaleOrderList(),
-          ),
-        const SizedBox(width: 8.0),
-        // زر Annuler: يظهر فقط إذا كانت الحالة 'sale' أو 'sent'
-        if (widget.salesOrder.state == 'sale' ||
-            widget.salesOrder.state == 'sent')
-          ButtonOrder(
-            state: 'annuler',
-            order: widget.salesOrder,
-            onUpdate: (idAccount) => updateSaleOrderList(),
+            onUpdate: (idAccount) => updateSaleOrderList(message: "Confirmed"),
           ),
         const SizedBox(width: 8.0),
         // زر Revert to Draft: يظهر فقط إذا كانت الحالة 'cancel'
@@ -695,7 +797,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
           ButtonOrder(
             state: 'cancel',
             order: widget.salesOrder,
-            onUpdate: (idAccount) => updateSaleOrderList(),
+            onUpdate: (idAccount) => updateSaleOrderList(message: "Confirmed"),
           ),
       ],
     );
@@ -935,6 +1037,7 @@ class StepperWidget extends StatelessWidget {
   }
 }
 
+// ignore: must_be_immutable
 class ButtonOrder extends StatefulWidget {
   final String state;
   OrderModel order;
@@ -970,16 +1073,6 @@ class _ButtonOrderState extends State<ButtonOrder> {
               });
         };
         break;
-      case 'annuler':
-        buttonText = 'Annuler';
-        onPresseded = () {
-          OrderModule.cancelMethod(
-              args: [widget.order.id],
-              onResponse: (response) async {
-                await widget.onUpdate(widget.order.id);
-              });
-        };
-        break;
       case 'cancel':
         buttonText = 'Revert to Draft';
         onPresseded = () async {
@@ -997,42 +1090,28 @@ class _ButtonOrderState extends State<ButtonOrder> {
     }
 
     return Center(
-      child: buttonText == ""
-          ? Container()
-          : ElevatedButton(
-              onPressed: onPresseded,
-              style: ElevatedButton.styleFrom(
-                shadowColor: Colors.transparent, // No shadow
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30), // Circular border
-                  side: BorderSide.none, // No border
-                ),
-                padding: EdgeInsets.zero, // No padding
-              ),
-              child: Ink(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: widget.state == "annuler"
-                        ? [Colors.grey.shade400, Colors.grey.shade600]
-                        : [Colors.lightBlue.shade300, Colors.blue.shade600],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Container(
-                  constraints: const BoxConstraints(
-                      maxWidth: 100.0, maxHeight: 30.0), // Button size
-                  alignment: Alignment.center,
-                  child: Text(
-                    buttonText,
-                    style: const TextStyle(
-                      color: Colors.white, // Text color
-                    ),
-                  ),
-                ),
-              ),
-            ),
+      child: ElevatedButton(
+        onPressed: onPresseded,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.blue,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8.0),
+          ),
+          padding: const EdgeInsets.symmetric(
+            vertical: 10.0,
+            horizontal: 20.0,
+          ),
+          elevation: 0,
+          iconColor: Colors.blue,
+        ),
+        child: Text(
+          buttonText,
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 }

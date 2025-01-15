@@ -170,4 +170,7 @@ class OrderModel {
       _$OrderModelFromJson(json);
 
   Map<String, dynamic> toJson() => _$OrderModelToJson(this);
+
+  @override
+  OrderModel fromJson(Map<String, dynamic> json) => OrderModel.fromJson(json);
 }

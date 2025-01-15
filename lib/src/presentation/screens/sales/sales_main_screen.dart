@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:gsolution/common/api_factory/models/order/sale_order_model.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/src/presentation/screens/sales/saleorder/create/create_order_form.dart';
+import 'package:gsolution/src/presentation/screens/sales/saleorder/view/sale_order_view_detaille.dart';
 import 'package:gsolution/src/presentation/screens/sales/salesSections/horizontal_sales_table_section.dart';
 import 'package:gsolution/src/presentation/widgets/date_picker_section/start_end_date_picker_section.dart';
 import 'package:gsolution/src/presentation/widgets/drawer/dashboard_drawer.dart';
-import 'package:gsolution/src/utils/contstants.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class SalesMainScreen extends StatefulWidget {
@@ -19,17 +20,17 @@ class SalesMainScreen extends StatefulWidget {
 class _SalesMainScreenState extends State<SalesMainScreen> {
   final controller = SidebarXController(selectedIndex: 1, extended: true);
   final GlobalKey<ScaffoldState> _key = GlobalKey<ScaffoldState>();
-  List<dynamic> sales = [];
-  List<dynamic> filteredSales = [];
-  List<dynamic> baseFilteredSales = [];
+  static RxList<OrderModel> sales = <OrderModel>[].obs;
+  static RxList<OrderModel> filteredSales = <OrderModel>[].obs;
+  static RxList<OrderModel> baseFilteredSales = <OrderModel>[].obs;
   DateTime? _startSelectedDate;
   DateTime? _endSelectedDate;
   bool isSearch = false;
   String searchQuery = '';
 
   void _loadSales() {
-    sales = PrefUtils.sales;
-
+    sales.assignAll(PrefUtils.sales);
+    print(sales.length);
     final now = DateTime.now();
     _startSelectedDate = DateTime(now.year, now.month, 1);
     _endSelectedDate = DateTime(now.year, now.month + 1, 0);
@@ -39,7 +40,7 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
 
   void _filterSales(DateTime? startDate, DateTime? endDate) {
     setState(() {
-      baseFilteredSales = sales.where((sale) {
+      baseFilteredSales.assignAll(sales.where((sale) {
         final saleDate = DateTime.parse(sale.dateOrder);
         final saleDateWithoutTime =
             DateTime(saleDate.year, saleDate.month, saleDate.day);
@@ -50,8 +51,9 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
             (endDate == null ||
                 saleDateWithoutTime
                     .isBefore(endDate.add(const Duration(days: 1))));
-      }).toList();
-      filteredSales = List.from(baseFilteredSales);
+      }).toList());
+
+      filteredSales.assignAll(baseFilteredSales);
     });
   }
 
@@ -61,7 +63,7 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
     super.initState();
   }
 
-  List<dynamic> searchSales(String query) {
+  List<OrderModel> searchSales(String query) {
     return baseFilteredSales.where((sale) {
       final saleName = sale.name?.toLowerCase() ?? '';
       final customerName = sale.partnerId?[1]?.toLowerCase() ?? '';
@@ -77,8 +79,12 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
   void _performSearch(String query) {
     setState(() {
       searchQuery = query;
-      filteredSales =
-          query.isEmpty ? List.from(baseFilteredSales) : searchSales(query);
+
+      if (query.isEmpty) {
+        filteredSales.assignAll(baseFilteredSales);
+      } else {
+        filteredSales.assignAll(searchSales(query));
+      }
     });
   }
 
@@ -133,6 +139,20 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
         );
       },
     );
+  }
+
+  Future<void> _navigateToDetail(dynamic sale) async {
+    final navigationFunction =
+        Get.currentRoute.contains('/CreateOrder') ? Get.off : Get.to;
+
+    final result =
+        await navigationFunction(() => SaleOrderViewDetaille(salesOrder: sale));
+
+    if (result == true) {
+      _loadSales();
+    } else {
+      _loadSales();
+    }
   }
 
   @override
@@ -231,39 +251,26 @@ class _SalesMainScreenState extends State<SalesMainScreen> {
       body: Container(
         color: Colors.white70,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const SizedBox(height: 10),
             Expanded(
-              child: HorizontalSalesTableSection(
-                sales: filteredSales,
-              ),
+              child: Obx(() {
+                return HorizontalSalesTableSection(
+                  sales: filteredSales.toList(),
+                  onSaleTap: _navigateToDetail,
+                );
+              }),
             ),
           ],
         ),
       ),
-      floatingActionButton: Align(
-        alignment: Alignment.bottomRight,
-        child: FloatingActionButton.extended(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          onPressed: () async {
-            await Get.to(() => const CreateOrder());
-          },
-          label: Text(
-            "Create Sale",
-            style: GoogleFonts.raleway(
-              color: Colors.white70,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-          icon: const Icon(
-            Icons.shopping_cart,
-            color: Colors.white70,
-            size: 24,
-          ),
-          backgroundColor: ColorSchema.primaryColor,
-        ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () async {
+          await Get.to(() => CreateOrder(
+                onSaleTap: _navigateToDetail,
+              ));
+        },
+        label: Text("Create Sale"),
+        icon: Icon(Icons.shopping_cart),
       ),
     );
   }

@@ -104,7 +104,6 @@ class PartnerModule {
       "sale_order_ids",
       "sale_warn",
       "sale_warn_msg",
-      'total_invoiced',
       'payment_token_count',
     ];
     List<String> fieldsDebug = [
@@ -122,9 +121,16 @@ class PartnerModule {
       "supplier_rank",
       "child_ids",
       "sale_order_count",
-      'total_invoiced',
       'payment_token_count',
     ];
+    if (PrefUtils.user.value.isAdmin != false) {
+      fields.addAll([
+        'total_invoiced',
+      ]);
+      fieldsDebug.addAll([
+        'total_invoiced',
+      ]);
+    }
     domain = [];
 
     try {

@@ -13,7 +13,7 @@ class PrefUtils {
   static var categoryProduct = <ProductCategoryModel>[].obs;
   static var partners = <PartnerModel>[].obs;
   static var user = UserModel().obs;
-  static var sales = <OrderModel>[].obs;
+  static RxList<OrderModel> sales = <OrderModel>[].obs;
   static var orderLine = <OrderLineModel>[].obs;
   static var accountMove = <AccountMoveModel>[].obs;
   static var accountJournal = <AccountJournalModel>[].obs;
@@ -163,11 +163,15 @@ class PrefUtils {
   static Future<RxList<OrderModel>> getSales() async {
     await initPreferences();
     var salesString = preferences!.getString(PrefKeys.sales);
+
     if (salesString == null || salesString.isEmpty) {
       return <OrderModel>[].obs;
     }
     List<dynamic> decoded = jsonDecode(salesString);
-    return RxList(decoded.map((e) => OrderModel.fromJson(e)).toList());
+    RxList<OrderModel> salesList =
+        RxList(decoded.map((e) => OrderModel.fromJson(e)).toList());
+
+    return salesList;
   }
 
   // salesLine

@@ -1,4 +1,6 @@
 import 'package:gsolution/common/config/import.dart';
+import 'package:gsolution/common/config/prefs/pref_keys.dart';
+import 'package:gsolution/common/config/prefs/pref_update.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:gsolution/common/widgets/BarcodeScannerPage.dart';
@@ -8,7 +10,8 @@ import 'package:dropdown_search/dropdown_search.dart';
 
 class CreateOrder extends StatefulWidget {
   final PartnerModel? partner;
-  const CreateOrder({super.key, this.partner});
+  final Function(dynamic sale)? onSaleTap;
+  const CreateOrder({super.key, this.partner, this.onSaleTap});
 
   @override
   _CreateOrderState createState() => _CreateOrderState();
@@ -186,7 +189,6 @@ class _CreateOrderState extends State<CreateOrder> {
         modifiableMap['commitment_date'] =
             formatter.format(modifiableMap['commitment_date']);
       }
-
       OrderModule.createSaleOrder(
         maps: modifiableMap,
         onResponse: (resCreateSaleOrder) async {
@@ -207,12 +209,21 @@ class _CreateOrderState extends State<CreateOrder> {
                       if (orderLineAdd == productsAdd.length) {
                         OrderModule.readOrders(
                             ids: [resCreateSaleOrder],
-                            onResponse: (resOrder) {
-                              debugPrint('validation OK');
-                              PrefUtils.sales.addAll(resOrder);
-                              Get.off(() => SaleOrderViewDetaille(
-                                    salesOrder: resOrder[0],
-                                  ));
+                            onResponse: (resOrder) async {
+                              await PrefUpdate.addItem<OrderModel>(
+                                item: resOrder[0],
+                                key: PrefKeys.sales,
+                                fromJson: (json) => OrderModel.fromJson(json),
+                                toJson: (model) => model.toJson(),
+                                getListFunction: () => PrefUtils.sales,
+                              );
+                              if (widget.onSaleTap != null) {
+                                widget.onSaleTap!(resOrder[0]);
+                              } else {
+                                Get.off(() => SaleOrderViewDetaille(
+                                      salesOrder: resOrder[0],
+                                    ));
+                              }
                             });
                       }
                     });

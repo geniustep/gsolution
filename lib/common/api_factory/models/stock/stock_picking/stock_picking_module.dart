@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:gsolution/common/config/import.dart';
+import 'package:path_provider/path_provider.dart';
 
 class StockPickingModule {
   StockPickingModule._();
@@ -394,5 +397,39 @@ class StockPickingModule {
         handleApiError(error);
       },
     );
+  }
+
+  static prinStockPickingPdfQR(
+      {required OnResponse onResponse, required int id}) async {
+    await Api.printReportPdf(
+        reportName: 'stock.report_picking',
+        recordId: id,
+        onResponse: (response) async {
+          final directory = await getDownloadsDirectory();
+          final savePath = '${directory!.path}/picking_$id.pdf';
+          final file = File(savePath);
+          await file.writeAsBytes(response);
+          onResponse(savePath);
+        },
+        onError: (e, d) {
+          handleApiError(e);
+        });
+  }
+
+  static prinStockPickingPdf(
+      {required OnResponse onResponse, required int id}) async {
+    await Api.printReportPdf(
+        reportName: 'stock.report_deliveryslip',
+        recordId: id,
+        onResponse: (response) async {
+          final directory = await getDownloadsDirectory();
+          final savePath = '${directory!.path}/picking_$id.pdf';
+          final file = File(savePath);
+          await file.writeAsBytes(response);
+          onResponse(savePath);
+        },
+        onError: (e, d) {
+          handleApiError(e);
+        });
   }
 }

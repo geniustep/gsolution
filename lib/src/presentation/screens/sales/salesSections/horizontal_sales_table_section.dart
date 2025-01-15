@@ -1,10 +1,12 @@
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:gsolution/common/config/import.dart';
-import 'package:gsolution/src/presentation/screens/sales/saleorder/view/sale_order_view_detaille.dart';
 
+// ignore: must_be_immutable
 class HorizontalSalesTableSection extends StatelessWidget {
-  final List<dynamic> sales;
-  const HorizontalSalesTableSection({super.key, required this.sales});
+  final List<OrderModel> sales;
+  final Function(dynamic sale)? onSaleTap;
+  const HorizontalSalesTableSection(
+      {super.key, required this.sales, this.onSaleTap});
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +29,14 @@ class HorizontalSalesTableSection extends StatelessWidget {
       itemCount: sales.length,
       itemBuilder: (context, index) {
         final data = sales[index];
-        return _buildCard(data, context);
+        return _buildCard(data, context, onSaleTap);
       },
     );
   }
 }
 
-Widget _buildCard(dynamic data, BuildContext context) {
+Widget _buildCard(
+    dynamic data, BuildContext context, Function(dynamic)? onSaleTap) {
   Color getStateColor(String state) {
     switch (state) {
       case 'draft':
@@ -81,10 +84,12 @@ Widget _buildCard(dynamic data, BuildContext context) {
 
   return InkWell(
     onTap: () {
-      Get.to(() => SaleOrderViewDetaille(salesOrder: data));
+      if (onSaleTap != null) {
+        onSaleTap(data);
+      }
     },
     child: Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
+      margin: const EdgeInsets.symmetric(vertical: 6), 
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),

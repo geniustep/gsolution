@@ -112,6 +112,69 @@ class OrderModule {
     );
   }
 
+  static deliteOrder(
+      {required int args, required OnResponse<bool> onResponse}) {
+    Api.callKW(
+        model: "sale.order",
+        method: 'unlink',
+        args: [
+          [args]
+        ],
+        onResponse: (response) {
+          if (response != null) {
+            onResponse(response);
+          }
+        },
+        onError: (e, d) {
+          handleApiError(e);
+        });
+  }
+
+  static cancelOrderDraft(
+      {required int args, required OnResponse<bool> onResponse}) {
+    Api.callKW(
+        model: "sale.order",
+        method: "action_cancel",
+        args: [
+          [args]
+        ],
+        onResponse: (response) {
+          if (response is bool && response) {
+            onResponse(response);
+          } else if (response != null && response is Map<String, dynamic>) {
+            Api.webSave(
+                model: "sale.order.cancel",
+                value: {"order_id": args},
+                args: [],
+                onResponse: (resWebSave) {
+                  print(resWebSave.runtimeType);
+                  if (resWebSave != null) {
+                    final idRes = resWebSave[0]["id"];
+                    Api.callKW(
+                        model: "sale.order.cancel",
+                        method: "action_cancel",
+                        args: [idRes],
+                        onResponse: (resCancel) {
+                          print(resCancel.runtimeType);
+                          if (resCancel != null && resCancel) {
+                            onResponse(resCancel);
+                          }
+                        },
+                        onError: (e, d) {
+                          handleApiError(e);
+                        });
+                  }
+                },
+                onError: (e, d) {
+                  handleApiError(e);
+                });
+          }
+        },
+        onError: (e, d) {
+          handleApiError(e);
+        });
+  }
+
   static cancelMethod({
     required List<int> args,
     required OnResponse<bool> onResponse,
@@ -138,7 +201,6 @@ class OrderModule {
         if (response != null) {
           print("First response: $response");
           try {
-            // تحليل الحقول مباشرة من الاستجابة
             final resModel = response['res_model'];
             final context = response['context'];
 
@@ -146,10 +208,9 @@ class OrderModule {
               throw Exception("Unexpected res_model or missing context");
             }
 
-            // إعداد kwargs للاستدعاء الثاني بناءً على الاستجابة
             final kwargsForSecondCall = {
               "context": {
-                ...context, // استخدم الـ context المقدم من الاستجابة
+                ...context,
                 "params": {
                   "action": "sales",
                   "actionStack": [
@@ -166,7 +227,6 @@ class OrderModule {
               }
             };
 
-            // الاستدعاء الثاني
             Api.callKW(
               model: "sale.order.cancel",
               method: "action_cancel",
@@ -363,12 +423,6 @@ class OrderModule {
           final savePath = '${directory!.path}/sales_$id.pdf';
           final file = File(savePath);
           await file.writeAsBytes(response);
-          // final result = await OpenFile.open(savePath);
-          // if (result.type == ResultType.done) {
-          //   print("File opened successfully.");
-          // } else {
-          //   print("Error opening file: ${result.message}");
-          // }
           onResponse(savePath);
         },
         onError: (e, d) {

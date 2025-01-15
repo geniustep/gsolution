@@ -5,6 +5,7 @@ import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/common/widgets/BarcodeScannerPage.dart';
 import 'package:gsolution/src/presentation/screens/stock/dialog_return_product.dart';
+import 'package:gsolution/src/presentation/widgets/viewer/pdfviewer.dart';
 
 class DeliveryAction {
   DeliveryAction._();
@@ -50,7 +51,7 @@ class DeliveryAction {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader("Stock Picking Details"),
+                    _buildHeader("Stock Picking Details", context, data),
                     const SizedBox(height: 20),
                     _buildStockDetails(data, localIsDone, searchController,
                         dropdownKeys, scanBarcode),
@@ -60,18 +61,12 @@ class DeliveryAction {
                       children: [
                         _buildButton(
                           label: "Imprimer",
-                          onPressed: () {
-                            Get.snackbar(
-                              "Printing",
-                              "Wait for Printing!",
-                              snackPosition: SnackPosition.BOTTOM,
-                            );
-                          },
+                          onPressed: () {},
                         ),
                         const SizedBox(width: 10),
                         localIsDone
                             ? _buildButton(
-                                label: "Validate",
+                                label: "Livrer",
                                 onPressed: () {
                                   StockPickingModule.validateStockPicking(
                                     args: [data.id!],
@@ -132,13 +127,73 @@ class DeliveryAction {
     );
   }
 
-  static Widget _buildHeader(String title) {
-    return Text(
-      title,
-      style: const TextStyle(
-        fontSize: 20,
-        fontWeight: FontWeight.bold,
+  static Widget _menuPrint(
+      {required BuildContext context, required StockPickingModel stock}) {
+    return Visibility(
+      // visible: ["Ready"].contains(stock.state),
+      child: PopupMenuButton<int>(
+        icon: const Icon(Icons.more_vert),
+        onSelected: (value) {
+          switch (value) {
+            case 1:
+              StockPickingModule.prinStockPickingPdf(
+                id: stock.id!,
+                onResponse: (response) {
+                  Get.back();
+                  fetchAndShowPdfDialog(context, response);
+                  Get.snackbar(
+                    "Printing",
+                    "Wait for Printing!",
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              );
+              break;
+            case 2:
+              StockPickingModule.prinStockPickingPdfQR(
+                id: stock.id!,
+                onResponse: (response) {
+                  Get.back();
+                  fetchAndShowPdfDialog(context, response);
+                  Get.snackbar(
+                    "Printing",
+                    "Wait for Printing!",
+                    snackPosition: SnackPosition.BOTTOM,
+                  );
+                },
+              );
+              break;
+          }
+        },
+        itemBuilder: (context) => [
+          // if (!['sent', 'cancel'].contains(stock.state))
+          PopupMenuItem(
+            value: 1,
+            child: Text("Bon de Livraison"),
+          ),
+          PopupMenuItem(
+            value: 2,
+            child: Text("Bon de Livraison QR"),
+          ),
+        ],
       ),
+    );
+  }
+
+  static Widget _buildHeader(
+      String title, BuildContext context, StockPickingModel stock) {
+    return Row(
+      children: [
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Spacer(),
+        _menuPrint(context: context, stock: stock)
+      ],
     );
   }
 
