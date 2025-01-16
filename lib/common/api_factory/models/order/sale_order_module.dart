@@ -16,7 +16,8 @@ class OrderModule {
       'payment_term_id',
       'amount_tax',
       'amount_untaxed',
-      "invoice_status"
+      "invoice_status",
+      "delivery_status",
     ];
 
     try {

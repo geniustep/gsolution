@@ -53,7 +53,7 @@ class MylevatedButton extends StatelessWidget {
           ? Icon(
               icon,
               color: textColor,
-              size: 13,
+              size: 15,
             )
           : Container(),
       label: Text(

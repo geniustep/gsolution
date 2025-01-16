@@ -42,6 +42,7 @@ class _PdfViewerWidgetState extends State<PdfViewerWidget> {
 }
 
 void fetchAndShowPdfDialog(BuildContext context, String response) {
+  final appBarColor = Theme.of(context).appBarTheme.backgroundColor;
   Get.dialog(
     Dialog(
       shape: RoundedRectangleBorder(
@@ -53,7 +54,7 @@ void fetchAndShowPdfDialog(BuildContext context, String response) {
         child: Column(
           children: [
             Container(
-              color: Theme.of(context).appBarTheme.backgroundColor,
+              color: appBarColor,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [

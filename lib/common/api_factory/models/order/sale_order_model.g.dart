@@ -60,6 +60,7 @@ OrderModel _$OrderModelFromJson(Map<String, dynamic> json) => OrderModel(
       messageAttachmentCount: json['message_attachment_count'],
       displayName: json['display_name'],
       lastUpdate: json['__last_update'],
+      deliveryStatus: json['delivery_status'],
     );
 
 Map<String, dynamic> _$OrderModelToJson(OrderModel instance) =>
@@ -117,4 +118,5 @@ Map<String, dynamic> _$OrderModelToJson(OrderModel instance) =>
       'message_ids': instance.messageIds,
       'message_attachment_count': instance.messageAttachmentCount,
       'display_name': instance.displayName,
+      'delivery_status': instance.deliveryStatus,
     };

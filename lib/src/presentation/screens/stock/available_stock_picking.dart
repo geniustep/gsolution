@@ -64,10 +64,14 @@ class DeliveryAction {
                               label: "Delivery",
                               icon: Icons.local_shipping,
                               onPressed: () {
+                                final rootContexts =
+                                    Navigator.of(context, rootNavigator: true)
+                                        .context;
                                 StockPickingModule.validateStockPicking(
                                   args: [data.id!],
                                   onResponse: (res) async {
                                     if (res) {
+                                      Get.back();
                                       Get.dialog(
                                         AlertDialog(
                                           title: Text(
@@ -100,10 +104,20 @@ class DeliveryAction {
                                                   child: MylevatedButton(
                                                     label: 'Print',
                                                     onPressed: () {
-                                                      onResponse(true);
-                                                      _menuPrint(
-                                                          context: context,
-                                                          stock: data);
+                                                      StockPickingModule
+                                                          .prinStockPickingPdf(
+                                                        id: data.id!,
+                                                        onResponse: (response) {
+                                                          onResponse(true);
+                                                          Future.delayed(
+                                                              Duration(
+                                                                  milliseconds:
+                                                                      300),
+                                                              () => fetchAndShowPdfDialog(
+                                                                  rootContexts,
+                                                                  response));
+                                                        },
+                                                      );
                                                     },
                                                     icon: Icons.print,
                                                     backgroundColor:
@@ -194,7 +208,6 @@ class DeliveryAction {
               StockPickingModule.prinStockPickingPdfQR(
                 id: stock.id!,
                 onResponse: (response) {
-                  Get.back();
                   fetchAndShowPdfDialog(context, response);
                   Get.snackbar(
                     "Printing",

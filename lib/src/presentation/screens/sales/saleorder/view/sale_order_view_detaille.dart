@@ -226,6 +226,77 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
         });
   }
 
+  _createDellivery() async {
+    await OrderModule.actionViewDelivery(
+      args: [widget.salesOrder.id],
+      onResponse: (resAction) {
+        List<int> resId = resAction;
+        bool isOneId = resId.length == 1 ? true : false;
+        StockPickingModule.webRead(
+          isOneId: isOneId,
+          args: resId,
+          onResponse: (resRead) {
+            if (resRead.isNotEmpty) {
+              stockPicking.assignAll(resRead);
+              final allAvailable = stockPicking
+                  .every((item) => item.productAvilabilityState == "available");
+              final anyLate = stockPicking
+                  .any((item) => item.productAvilabilityState == "late");
+              if (resRead.length > 1) {
+                Get.dialog(
+                  AlertDialog(
+                    content: SizedBox(
+                      width: double.maxFinite,
+                      child: _listStockPicking(stockPicking),
+                    ),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: const Text("Close"),
+                      ),
+                    ],
+                  ),
+                );
+              } else if (allAvailable) {
+                DeliveryAction.showDeliveryBottomSheet(
+                  isDone: true,
+                  context: context,
+                  data: stockPicking[0],
+                  saleId: widget.salesOrder.id,
+                  onResponse: (response) async {
+                    if (response) {
+                      await updateSaleOrderList().then((_) {
+                        Get.back();
+                      });
+                    }
+                  },
+                );
+              } else if (anyLate) {
+                dialogLate();
+              } else {
+                DeliveryAction.showDeliveryBottomSheet(
+                  isDone: false,
+                  context: context,
+                  data: stockPicking[0],
+                  saleId: widget.salesOrder.id,
+                  onResponse: (response) async {
+                    if (response) {
+                      await updateSaleOrderList().then((_) {
+                        Get.back();
+                      });
+                    }
+                  },
+                );
+              }
+            } else {
+              print('❌ Error: No response received.');
+            }
+          },
+        );
+      },
+    );
+  }
+
   Widget _buildButtonheader() {
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -236,14 +307,21 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Visibility(
+            visible: widget.salesOrder.deliveryStatus == 'pending',
+            child: MylevatedButton(
+                label: "Delivery",
+                icon: Icons.local_shipping,
+                onPressed: () {
+                  _createDellivery();
+                }),
+          ),
+          Visibility(
             visible: widget.salesOrder.invoiceStatus == 'to invoice',
             child: MylevatedButton(
                 label: "Create Invoice",
                 icon: Icons.receipt,
                 onPressed: () {
-                  if (widget.salesOrder.invoiceStatus == 'to invoice') {
-                    _createInvoice();
-                  }
+                  _createInvoice();
                 }),
           ),
           Visibility(
@@ -273,7 +351,8 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                 )),
           ),
           Visibility(
-            visible: widget.salesOrder.deliveryCount > 0,
+            visible: widget.salesOrder.deliveryCount > 0 &&
+                widget.salesOrder.deliveryStatus != 'pending',
             child: TextButton(
                 onPressed: () {
                   OrderModule.actionViewDelivery(
@@ -315,7 +394,6 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                                 onResponse: (response) async {
                                   if (response) {
                                     await updateSaleOrderList().then((_) {
-                                      Navigator.pop(context);
                                       Get.back();
                                     });
                                   }
@@ -371,25 +449,31 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
           final item = data[index];
           return InkWell(
             onTap: () {
-              final allAvailable = data
-                  .every((item) => item.productAvilabilityState == "available");
-              final anyLate =
-                  data.any((item) => item.productAvilabilityState == "late");
+              // تحقق من الشروط الخاصة بالمنتجات داخل هذا العنصر فقط
+              // final allAvailable = data
+              //     .every((item) => item.productAvilabilityState == "available");
+              // final anyLate =
+              //     data.any((item) => item.productAvilabilityState == "late");
 
+              final allAvailable = item.productAvilabilityState == "available";
+              final anyLate = item.productAvilabilityState == "late";
+
+              // تطبيق الشروط الخاصة بهذا العنصر
               if (allAvailable) {
-                Get.back();
+                // جميع المنتجات متوفرة لهذا العنصر
+
                 Future.delayed(Duration(milliseconds: 300), () {
                   if (mounted) {
+                    final newContext =
+                        Navigator.of(context, rootNavigator: true).context;
                     DeliveryAction.showDeliveryBottomSheet(
                       isDone: true,
-                      context:
-                          Navigator.of(context, rootNavigator: true).context,
+                      context: newContext,
                       data: item,
                       saleId: widget.salesOrder.id,
                       onResponse: (response) async {
-                        if (response) {
+                        if (response['1'] == true) {
                           await updateSaleOrderList().then((_) {
-                            Navigator.pop(context);
                             Get.back();
                           });
                         }
@@ -398,6 +482,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                   }
                 });
               } else if (anyLate) {
+                // بعض المنتجات متأخرة لهذا العنصر
                 Get.back();
                 Future.delayed(Duration(milliseconds: 300), () {
                   if (mounted) {
@@ -407,21 +492,25 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
               } else {
                 final rootContext =
                     Navigator.of(context, rootNavigator: true).context;
-
-                DeliveryAction.showDeliveryBottomSheet(
-                  isDone: false,
-                  context: rootContext,
-                  data: item,
-                  saleId: widget.salesOrder.id,
-                  onResponse: (response) async {
-                    if (response) {
-                      await updateSaleOrderList().then((_) {
-                        Navigator.pop(context);
-                        Get.back();
-                      });
-                    }
-                  },
-                );
+                Get.back();
+                Future.delayed(Duration.zero, () {
+                  if (mounted) {
+                    DeliveryAction.showDeliveryBottomSheet(
+                      isDone: false,
+                      context: rootContext,
+                      data: item,
+                      saleId: widget.salesOrder.id,
+                      onResponse: (response) async {
+                        if (response) {
+                          await updateSaleOrderList().then((_) {
+                            Get.back();
+                          });
+                        }
+                      },
+                    );
+                  }
+                });
+                // حالات أخرى لهذا العنصر
               }
             },
             child: Card(
@@ -470,8 +559,13 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                                 item.partnerId?["display_name"] ?? 'Unknown',
                                 overflow: TextOverflow.ellipsis)),
                         Expanded(
+                            child: Text(item.productAvilability.toString())),
+                        Expanded(
                             flex: 2,
-                            child: Text(item.dateDone?.toString() ?? 'N/A',
+                            child: Text(
+                                item.dateDone != false
+                                    ? item.dateDone.toString()
+                                    : "Not delivered yet",
                                 overflow: TextOverflow.ellipsis)),
                       ],
                     ),
