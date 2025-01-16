@@ -208,7 +208,8 @@ class StockPickingModule {
           }
 
           for (var element in records) {
-            if (element is Map<String, dynamic>) {
+            if (element is Map<String, dynamic> &&
+                element['state'] != "cancel") {
               stockPicking.add(StockPickingModel.fromJson(element));
             }
           }

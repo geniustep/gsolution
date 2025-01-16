@@ -89,7 +89,7 @@ Widget _buildCard(
       }
     },
     child: Card(
-      margin: const EdgeInsets.symmetric(vertical: 6), 
+      margin: const EdgeInsets.symmetric(vertical: 6),
       elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -106,7 +106,7 @@ Widget _buildCard(
                   data.partnerId[1],
                   style: GoogleFonts.raleway(
                     textStyle: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -115,7 +115,7 @@ Widget _buildCard(
                   "${data.amountTotal} DH",
                   style: GoogleFonts.averiaLibre(
                     textStyle: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 13,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -130,15 +130,15 @@ Widget _buildCard(
                   "${data.name}: ${data.dateOrder}",
                   style: GoogleFonts.nunito(
                     textStyle: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       color: Colors.grey,
                     ),
                   ),
                 ),
                 Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                    horizontal: 10,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: getStateColor(data.state), // اللون حسب الحالة
@@ -149,12 +149,13 @@ Widget _buildCard(
                       Icon(
                         getStateIcon(data.state),
                         color: Colors.white,
-                        size: 14,
+                        size: 10,
                       ),
-                      const SizedBox(width: 6),
+                      const SizedBox(width: 4),
                       Text(
-                        getStateLabel(data.state), // النص حسب الحالة
+                        getStateLabel(data.state),
                         style: const TextStyle(
+                          fontSize: 10,
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
                         ),

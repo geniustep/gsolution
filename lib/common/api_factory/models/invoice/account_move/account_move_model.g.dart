@@ -118,6 +118,8 @@ AccountMoveModel _$AccountMoveModelFromJson(Map<String, dynamic> json) =>
       writeUid: json['write_uid'],
       writeDate: json['write_date'],
       lastUpdate: json['__last_update'],
+      statusInPayment: json['status_in_payment'],
+      amountTotalInCurrencySigned: json['amount_total_in_currency_signed'],
     );
 
 Map<String, dynamic> _$AccountMoveModelToJson(AccountMoveModel instance) =>
@@ -232,6 +234,8 @@ Map<String, dynamic> _$AccountMoveModelToJson(AccountMoveModel instance) =>
       'write_uid': instance.writeUid,
       'write_date': instance.writeDate,
       '__last_update': instance.lastUpdate,
+      'status_in_payment': instance.statusInPayment,
+      'amount_total_in_currency_signed': instance.amountTotalInCurrencySigned,
     };
 
 SalesAdvancePaymentInvoice _$SalesAdvancePaymentInvoiceFromJson(

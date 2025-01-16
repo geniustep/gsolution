@@ -214,6 +214,11 @@ class AccountMoveModule {
       'amount_total',
       'amount_residual',
       'invoice_line_ids',
+      'status_in_payment',
+      'amount_total_in_currency_signed',
+      'invoice_partner_display_name',
+      'invoice_date',
+      'invoice_date_due',
     ];
     if (PrefUtils.user.value.isAdmin!) {
       fields.add('invoice_payments_widget');

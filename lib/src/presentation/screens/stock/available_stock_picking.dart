@@ -5,6 +5,7 @@ import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/common/widgets/BarcodeScannerPage.dart';
 import 'package:gsolution/src/presentation/screens/stock/dialog_return_product.dart';
+import 'package:gsolution/src/presentation/widgets/button/custom_elevated_button.dart';
 import 'package:gsolution/src/presentation/widgets/viewer/pdfviewer.dart';
 
 class DeliveryAction {
@@ -51,72 +52,112 @@ class DeliveryAction {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildHeader("Stock Picking Details", context, data),
+                    _buildHeader("Stock Picking Details is ${data.state}",
+                        context, data),
                     const SizedBox(height: 20),
                     _buildStockDetails(data, localIsDone, searchController,
                         dropdownKeys, scanBarcode),
                     const SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildButton(
-                          label: "Imprimer",
-                          onPressed: () {},
-                        ),
-                        const SizedBox(width: 10),
-                        localIsDone
-                            ? _buildButton(
-                                label: "Livrer",
-                                onPressed: () {
-                                  StockPickingModule.validateStockPicking(
-                                    args: [data.id!],
-                                    onResponse: (res) async {
-                                      if (res) {
-                                        Get.snackbar(
-                                          "Success",
-                                          "Stock picking validated successfully.",
-                                          snackPosition: SnackPosition.BOTTOM,
-                                        );
-                                        onResponse(true);
-                                      } else {
-                                        Get.snackbar(
-                                          "Error",
-                                          "Failed to validate stock picking.",
-                                          snackPosition: SnackPosition.BOTTOM,
-                                        );
-                                      }
-                                    },
-                                  );
-                                },
-                              )
-                            : _buildButton(
-                                label: "Retour",
-                                onPressed: () {
-                                  Get.back();
-                                  Future.delayed(
-                                    const Duration(milliseconds: 300),
-                                    () {
-                                      StockPickingModule.onChangeReturnStock(
-                                        id: data.id!,
-                                        onResponse: (responseData) {
-                                          if (responseData.isNotEmpty) {
-                                            showReturnDialog(
-                                                data: responseData,
-                                                saleId: saleId);
-                                          } else {
-                                            Get.snackbar(
-                                              "Error",
-                                              "No data found for return!",
-                                            );
-                                          }
-                                        },
+                    localIsDone
+                        ? Center(
+                            child: MylevatedButton(
+                              label: "Delivery",
+                              icon: Icons.local_shipping,
+                              onPressed: () {
+                                StockPickingModule.validateStockPicking(
+                                  args: [data.id!],
+                                  onResponse: (res) async {
+                                    if (res) {
+                                      Get.dialog(
+                                        AlertDialog(
+                                          title: Text(
+                                            'Delivery Note',
+                                            style: TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold),
+                                          ),
+                                          content: Text(
+                                            'Do you want to print this delivery note?',
+                                            style: TextStyle(fontSize: 16),
+                                          ),
+                                          actions: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                Center(
+                                                  child: MylevatedButton(
+                                                    label: 'No',
+                                                    onPressed: () {
+                                                      onResponse(true);
+                                                    },
+                                                    icon: Icons.close,
+                                                    backgroundColor: Colors.red,
+                                                    textColor: Colors.white,
+                                                  ),
+                                                ),
+                                                Center(
+                                                  child: MylevatedButton(
+                                                    label: 'Print',
+                                                    onPressed: () {
+                                                      onResponse(true);
+                                                      _menuPrint(
+                                                          context: context,
+                                                          stock: data);
+                                                    },
+                                                    icon: Icons.print,
+                                                    backgroundColor:
+                                                        Colors.green,
+                                                    textColor: Colors.white,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ],
+                                        ),
                                       );
-                                    },
-                                  );
-                                },
-                              ),
-                      ],
-                    ),
+                                    } else {
+                                      Get.snackbar(
+                                        "Error",
+                                        "Failed to validate stock picking.",
+                                        snackPosition: SnackPosition.BOTTOM,
+                                      );
+                                    }
+                                  },
+                                );
+                              },
+                            ),
+                          )
+                        : Center(
+                            child: MylevatedButton(
+                              label: "Return Item",
+                              backgroundColor: Colors.red,
+                              icon: Icons.undo,
+                              onPressed: () {
+                                Get.back();
+                                Future.delayed(
+                                  const Duration(milliseconds: 300),
+                                  () {
+                                    StockPickingModule.onChangeReturnStock(
+                                      id: data.id!,
+                                      onResponse: (responseData) {
+                                        if (responseData.isNotEmpty) {
+                                          showReturnDialog(
+                                              data: responseData,
+                                              saleId: saleId);
+                                        } else {
+                                          Get.snackbar(
+                                            "Error",
+                                            "No data found for return!",
+                                          );
+                                        }
+                                      },
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
                   ],
                 ),
               ),
@@ -229,7 +270,6 @@ class DeliveryAction {
             int index = entry.key;
             final moveData = entry.value as Map<String, dynamic>;
 
-            // التأكد من وجود مفتاح فريد لكل عنصر
             if (dropdownKeys.length <= index) {
               dropdownKeys.add(GlobalKey<DropdownSearchState<ProductModel>>());
             }
@@ -370,13 +410,43 @@ class DeliveryAction {
     );
   }
 
-  static Widget _buildButton({
+  static Widget buildButtons({
     required String label,
     required VoidCallback onPressed,
+    required IconData icon,
+    Color backgroundColor = Colors.blue,
+    Color textColor = Colors.white,
   }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      child: Text(label),
+    return Center(
+      child: ElevatedButton.icon(
+        onPressed: onPressed,
+        icon: Icon(
+          icon,
+          color: textColor,
+          size: 20,
+        ),
+        label: Text(
+          label,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+        ),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: backgroundColor,
+          foregroundColor: textColor,
+          shadowColor: Colors.blueAccent,
+          elevation: 5,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          padding: EdgeInsets.symmetric(
+            horizontal: 24,
+            vertical: 12,
+          ),
+        ),
+      ),
     );
   }
 }

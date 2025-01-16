@@ -4,9 +4,10 @@ import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_keys.dart';
 import 'package:gsolution/common/config/prefs/pref_update.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
-import 'package:gsolution/src/presentation/screens/invoice/account_move_windows_view_detaille.dart';
 import 'package:gsolution/src/presentation/screens/sales/saleorder/update/update_order_form.dart';
+import 'package:gsolution/src/presentation/screens/sales/saleorder/view/sale_order_view_detaille/to_invoice.dart';
 import 'package:gsolution/src/presentation/screens/stock/available_stock_picking.dart';
+import 'package:gsolution/src/presentation/widgets/button/custom_elevated_button.dart';
 import 'package:gsolution/src/presentation/widgets/viewer/pdfviewer.dart';
 
 // ignore: must_be_immutable
@@ -226,53 +227,37 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
   }
 
   Widget _buildButtonheader() {
-    return Container(
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: 10,
+        vertical: 6,
+      ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Visibility(
-            visible: widget.salesOrder.invoiceStatus == 'to invoice' ||
-                widget.salesOrder.invoiceCount > 0,
-            child: TextButton(
+            visible: widget.salesOrder.invoiceStatus == 'to invoice',
+            child: MylevatedButton(
+                label: "Create Invoice",
+                icon: Icons.receipt,
                 onPressed: () {
                   if (widget.salesOrder.invoiceStatus == 'to invoice') {
                     _createInvoice();
-                  } else if (widget.salesOrder.invoiceCount > 0) {
+                  }
+                }),
+          ),
+          Visibility(
+            visible: widget.salesOrder.invoiceCount > 0,
+            child: TextButton(
+                onPressed: () {
+                  if (widget.salesOrder.invoiceCount > 0) {
                     accountMove.assignAll(PrefUtils.accountMove
                         .where(
                             (p0) => p0.invoiceOrigin == widget.salesOrder.name)
                         .toList());
                     if (accountMove.isNotEmpty) {
                       if (accountMove.length == 1) {
-                        Get.dialog(
-                          AlertDialog(
-                            content: Center(
-                              child: SingleChildScrollView(
-                                child: Column(
-                                  children:
-                                      List.generate(accountMove.length, (i) {
-                                    final account = accountMove[i];
-                                    return InkWell(
-                                      child: Card(
-                                          child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: ListTile(
-                                            title:
-                                                Text(account.name.toString())),
-                                      )),
-                                      onTap: () {
-                                        Get.off(() =>
-                                            AccountMoveWindowsViewDetaille(
-                                              accountMove: account,
-                                            ));
-                                      },
-                                    );
-                                  }),
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
+                        ToInvoice.showInvoiceDialog(context, accountMove);
                       }
                     }
                   }
@@ -347,7 +332,6 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
                                 onResponse: (response) async {
                                   if (response) {
                                     await updateSaleOrderList().then((_) {
-                                      Navigator.pop(context);
                                       Get.back();
                                     });
                                   }
