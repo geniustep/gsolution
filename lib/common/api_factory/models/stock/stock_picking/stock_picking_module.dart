@@ -225,7 +225,45 @@ class StockPickingModule {
     );
   }
 
-  static webSave({
+  static webSaveStockPicking() {
+    final value = {
+      "move_ids_without_package": [
+        [
+          0,
+          "virtual_1400",
+          {
+            "company_id": 1,
+            "name": "[CONS_25630] Screw",
+            "state": "draft",
+            "picking_type_id": 2,
+            "move_line_ids": [],
+            "location_id": 8,
+            "location_dest_id": 5,
+            "partner_id": 66,
+            "additional": true,
+            "product_id": 99,
+            "description_picking": "Screw",
+            "date": "2025-01-16 13:57:39",
+            "product_uom_qty": 1,
+            "quantity": 1,
+            "product_uom": 1,
+            "picked": false,
+            "lot_ids": []
+          }
+        ]
+      ]
+    };
+    Api.webSave(
+        model: "stock.picking",
+        args: [],
+        value: value,
+        onResponse: (response) {},
+        onError: (e, d) {
+          handleApiError(e);
+        });
+  }
+
+  static webSaveStockReturn({
     required Map<String, dynamic> result,
     required OnResponse<int> onResponse,
   }) {

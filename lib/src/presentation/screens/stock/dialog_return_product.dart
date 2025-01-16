@@ -367,7 +367,7 @@ void showReturnDialog({
                 };
 
                 print(result);
-                StockPickingModule.webSave(
+                StockPickingModule.webSaveStockReturn(
                     result: result,
                     onResponse: (response) {
                       StockPickingModule.returnStock(

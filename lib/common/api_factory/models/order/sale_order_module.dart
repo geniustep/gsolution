@@ -92,6 +92,8 @@ class OrderModule {
       "message_ids",
       "message_attachment_count",
       "display_name",
+      "invoice_status",
+      "delivery_status",
     ];
     Api.read(
       model: "sale.order",

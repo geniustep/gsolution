@@ -268,7 +268,10 @@ class DeliveryAction {
           _buildInfoRow("Operation Type:",
               (data.pickingTypeId as Map?)?['display_name'] ?? 'Unknown'),
           _buildInfoRow("Scheduled Date:", data.scheduledDate ?? 'Unknown'),
-          _buildInfoRow("Deadline:", data.dateDone.toString()),
+          if (data.dateDone == false || data.dateDone == null)
+            _buildInfoRow("Deadline:", data.dateDeadline.toString()),
+          if (data.dateDone != false)
+            _buildInfoRow("DATE DONE:", data.dateDone.toString()),
           const SizedBox(height: 10),
           const Divider(),
           const Text(
