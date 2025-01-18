@@ -2,6 +2,7 @@ import 'package:gsolution/common/api_factory/models/invoice/account_journal/acco
 import 'package:gsolution/common/api_factory/models/invoice/account_payment/account_payment_module.dart';
 import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
+import 'package:gsolution/src/presentation/widgets/viewer/pdfviewer.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
@@ -37,14 +38,14 @@ class _AccountMoveWindowsViewDetailleState
     initializeData();
   }
 
-  void initializeData() {
-    filterAccountJournals();
-    fetchPaymentAccountIds();
-    fetchAccountMoveLines();
-    calculatePayments();
+  void initializeData() async {
+    await filterAccountJournals();
+    await fetchPaymentAccountIds();
+    await fetchAccountMoveLines();
+    await calculatePayments();
   }
 
-  void fetchPaymentAccountIds() {
+  fetchPaymentAccountIds() {
     if (idsAccountMove.isNotEmpty) {
       AccountJournalModule.webReadAccountJournal(
         ids: idsAccountMove,
@@ -145,7 +146,7 @@ class _AccountMoveWindowsViewDetailleState
     );
   }
 
-  void filterAccountJournals() {
+  filterAccountJournals() {
     for (var element in PrefUtils.accountJournal) {
       if (element.type.toString().toLowerCase().contains("bank") ||
           element.type.toString().toLowerCase().contains("cash")) {
@@ -155,9 +156,21 @@ class _AccountMoveWindowsViewDetailleState
     }
   }
 
-  void fetchAccountMoveLines() {
+  fetchAccountMoveLines() {
+    List<int> idsA = [];
+    if (widget.accountMove.invoiceLineIds is List<dynamic>) {
+      for (var element in widget.accountMove.invoiceLineIds) {
+        if (element is Map<String, dynamic>) {
+          idsA.add(element['id']);
+        } else {
+          idsA.add(element);
+        }
+      }
+    } else {
+      idsA.addAll(widget.accountMove.invoiceLineIds!.cast<int>());
+    }
     _controller.getAccuontMoveLineController(
-      ids: widget.accountMove.invoiceLineIds!.cast<int>(),
+      ids: idsA,
       onResponse: (response) {
         if (response != null) {
           setState(() {
@@ -168,17 +181,18 @@ class _AccountMoveWindowsViewDetailleState
     );
   }
 
-  void calculatePayments() {
+  calculatePayments() {
     if (widget.accountMove.invoicePaymentsWidget != false) {
-      var pai = widget.accountMove.invoicePaymentsWidget ?? {};
-      if (pai != false && pai['content'] != null) {
-        totalAmount = 0;
-        for (var payment in pai['content']) {
-          totalAmount += payment['amount'];
+      setState(() {
+        var pai = widget.accountMove.invoicePaymentsWidget ?? {};
+        if (pai != false && pai['content'] != null) {
+          totalAmount = 0;
+          for (var payment in pai['content']) {
+            totalAmount += payment['amount'];
+          }
+          totalPai = pai['content'].length;
         }
-        totalPai = pai['content'].length;
-        setState(() {});
-      }
+      });
     }
   }
 
@@ -186,18 +200,32 @@ class _AccountMoveWindowsViewDetailleState
 
   void _onChanged(dynamic val) => debugPrint(val.toString());
 
-  void updateAccountMoveList(AccountMoveModel updatedMove) {
-    int index = _controller.accountMove
-        .indexWhere((element) => element.id == updatedMove.id);
+  void updateAccountMoveList(
+      AccountMoveModel updatedMove, String? message) async {
+    int index =
+        PrefUtils.sales.indexWhere((element) => element.id == updatedMove.id);
+    // await PrefUpdate.updateItem<AccountMoveModel>(
+    //     key: PrefKeys.accountMove,
+    //     newItem: updatedMove,
+    //     fromJson: (json) => AccountMoveModel.fromJson(json),
+    //     toJson: (account) => account.toJson(),
+    //     getListFunction: () => PrefUtils.accountMove);
 
     if (index != -1) {
-      _controller.accountMove[index] = updatedMove;
+      // List<AccountMoveModel> updatedList = List.from(_controller.accountMove);
+      // updatedList[index] = updatedMove;
+      // _controller.accountMove.assignAll(updatedList);
       PrefUtils.accountMove[index] = updatedMove;
-      _controller.accountMove.refresh();
       PrefUtils.accountMove.refresh();
       setState(() {
         widget.accountMove = updatedMove;
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: message != null
+                ? Text("Order successfully $message")
+                : Text("Order successfully Updated")),
+      );
     }
   }
 
@@ -207,9 +235,7 @@ class _AccountMoveWindowsViewDetailleState
       appBar: AppBar(
         title: Text('Facture: ${widget.accountMove.name}'),
         actions: <Widget>[
-          if (widget.accountMove.invoicePaymentState != "paid" &&
-              widget.accountMove.state != "draft" &&
-              widget.accountMove.state != "cancel")
+          if (widget.accountMove.statusInPayment != "paid")
             IconButton(
               icon: const Icon(Icons.add_task),
               onPressed: () {
@@ -366,55 +392,12 @@ class _AccountMoveWindowsViewDetailleState
                                                     activeIds: resAction,
                                                     onResponse:
                                                         (resActionCreate) {
-                                                      AccountMoveModule
-                                                          .webReadAccountMove(
-                                                        ids: [
-                                                          widget.accountMove.id
-                                                        ],
-                                                        onResponse:
-                                                            (resWebRead) {
-                                                          print(resWebRead);
-                                                        },
-                                                      );
-                                                      print(resActionCreate);
+                                                      Get.back();
+                                                      updateAccount();
                                                     });
                                           });
                                 });
 
-                            // AccountPaymentModule.createAccountPayments(
-                            //   maps: newMap,
-                            //   context: context,
-                            //   onResponse: ((response) {
-                            //     if (response != null) {
-                            //       AccountMoveModule.readInvoice(
-                            //           ids: [widget.accountMove.id],
-                            //           onResponse: (res) {
-                            //             if (res.isNotEmpty) {
-                            //               setState(() {
-                            //                 updateAccountMoveList(res[0]);
-                            //                 // widget.accountMove = res[0];
-                            //                 var pai = jsonDecode(widget
-                            //                         .accountMove
-                            //                         .invoicePaymentsWidget) ??
-                            //                     {};
-                            //                 if (pai != false &&
-                            //                     pai['content'] != null) {
-                            //                   totalAmount = 0;
-                            //                   for (var payment
-                            //                       in pai['content']) {
-                            //                     totalAmount +=
-                            //                         payment['amount'];
-                            //                   }
-                            //                   totalPai = pai['content'].length;
-                            //                 }
-                            //               });
-
-                            //               Get.back();
-                            //             }
-                            //           });
-                            //     }
-                            //   }),
-                            // );
                             debugPrint('validation OK');
                           } else {
                             debugPrint(
@@ -438,7 +421,18 @@ class _AccountMoveWindowsViewDetailleState
             ),
           IconButton(
             icon: const Icon(Icons.print),
-            onPressed: () {},
+            onPressed: () {
+              // AccountMoveModule.printAccountMovePdf(
+              //     id: widget.accountMove.id,
+              //     onResponse: (response) {
+              //       fetchAndShowPdfDialog(context, response);
+              //     });
+              AccountMoveModule.printAccountMovePdfwithDue(
+                  onResponse: (response) {
+                    fetchAndShowPdfDialog(context, response);
+                  },
+                  id: widget.accountMove.id);
+            },
           ),
         ],
       ),
@@ -626,12 +620,12 @@ class _AccountMoveWindowsViewDetailleState
   }
 
   updateAccount() async {
-    await AccountMoveModule.readInvoice(
+    await AccountMoveModule.webReadAccountMove(
         ids: [widget.accountMove.id],
         onResponse: (resOrder) {
           if (resOrder.isNotEmpty) {
-            AccountMoveModel updatedAccount = resOrder.first;
-            updateAccountMoveList(updatedAccount);
+            AccountMoveModel updatedAccount = resOrder[0];
+            updateAccountMoveList(updatedAccount, 'INVOICE');
           }
         });
   }
@@ -764,9 +758,6 @@ class _AccountMoveWindowsViewDetailleState
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            Text('Montant HT: ${widget.accountMove.amountUntaxed} DH'),
-            Text('Taxes: ${widget.accountMove.amountTax} DH'),
-            Text('Total: ${widget.accountMove.amountTotal} DH'),
             if (widget.accountMove.invoicePaymentsWidget != "false")
               ElevatedButton(
                 onPressed: () {

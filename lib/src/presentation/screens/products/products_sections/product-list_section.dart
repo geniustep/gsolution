@@ -95,29 +95,28 @@ class _ProductListSectionState extends State<ProductListSection> {
                     ),
                     const SizedBox(width: 16),
                     Expanded(
-                      // أضف هذا لتقييد مساحة العناصر داخل Row
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            product.name,
-                            style: GoogleFonts.raleway(
-                              textStyle: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: widget.isSmallScreen ? 16 : 18,
-                                color: Colors.black,
+                      child: InkWell(
+                        onTap: () {
+                          Get.to(() => ProductDetails(
+                                product: product,
+                                productList: widget.productList,
+                                currentIndex: index,
+                              ));
+                        },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              product.name,
+                              style: GoogleFonts.raleway(
+                                textStyle: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: widget.isSmallScreen ? 16 : 18,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
-                          ),
-                          InkWell(
-                            onTap: () {
-                              Get.to(() => ProductDetails(
-                                    product: product,
-                                    productList: widget.productList,
-                                    currentIndex: index,
-                                  ));
-                            },
-                            child: ListTile(
+                            ListTile(
                               contentPadding: EdgeInsets.zero,
                               title: Padding(
                                 padding:
@@ -160,8 +159,8 @@ class _ProductListSectionState extends State<ProductListSection> {
                                 ],
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                     Padding(

@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:gsolution/common/api_factory/api_end_points.dart';
 import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
+import 'package:path_provider/path_provider.dart';
 
 class AccountMoveModule {
   AccountMoveModule._();
@@ -182,6 +185,8 @@ class AccountMoveModule {
       "is_purchase_matched",
       "stock_move_id",
       "stock_valuation_layer_ids",
+      "wip_production_ids",
+      "wip_production_count",
       "team_id",
       "sale_order_count",
     ];
@@ -779,6 +784,62 @@ class AccountMoveModule {
         },
         onError: (error, data) {
           handleApiError(error);
+        });
+  }
+
+  static printAccountMovePdf(
+      {required OnResponse onResponse, required int id}) async {
+    await Api.printReportPdf(
+        reportName: 'account.report_invoice',
+        recordId: id,
+        onResponse: (response) async {
+          final directory = await getDownloadsDirectory();
+          final savePath = '${directory!.path}/invoice_$id.pdf';
+          final file = File(savePath);
+          await file.writeAsBytes(response);
+          onResponse(savePath);
+        },
+        onError: (e, d) {
+          handleApiError(e);
+        });
+  }
+
+  static printAccountMovePdfwithDue(
+      {required OnResponse onResponse, required int id}) {
+    Api.webSave(
+        model: 'account.move.send.wizard',
+        args: [],
+        value: {"move_id": id},
+        onResponse: (response) {
+          if (response is List<dynamic>) {
+            int idd = response[0]['id'];
+            Api.callKW(
+                model: "account.move.send.wizard",
+                method: 'action_send_and_print',
+                args: [idd],
+                onResponse: (res) {
+                  print(res.runtimeType);
+                  if (res is Map<String, dynamic>) {
+                    String cleanedUrl = res['url'];
+                    String url = cleanedUrl.replaceFirst("/", "");
+                    Api.downloadReportPdf(
+                        url: url,
+                        onResponse: (pdf) {
+                          onResponse(pdf);
+                        },
+                        onError: (e, d) {
+                          handleApiError(e);
+                        });
+                  }
+                  ;
+                },
+                onError: (e, d) {
+                  handleApiError(e);
+                });
+          }
+        },
+        onError: (e, d) {
+          handleApiError(e);
         });
   }
 }

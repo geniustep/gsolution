@@ -110,9 +110,9 @@ class ProductDetails extends StatelessWidget {
           context: context,
           builder: (_) {
             final String imageToShow = kReleaseMode
-                ? (product.image1920?.isNotEmpty ?? false
+                ? product.image1920 != null && product.image1920 != false
                     ? product.image1920
-                    : "assets/images/other/empty_product.png")
+                    : "assets/images/other/empty_product.png"
                 : "assets/images/other/empty_product.png";
 
             return ImageTap(imageToShow);
@@ -129,19 +129,9 @@ class ProductDetails extends StatelessWidget {
             bottomRight: Radius.circular(20),
           ),
         ),
-        child: product.image1920?.isNotEmpty ?? false
-            ? buildImage(
-                image: product.image1920,
-              )
-            // Image.memory(
-            //     base64.decode(product.image_1920!),
-            //     fit: BoxFit.cover,
-            //   )
-            : const Icon(
-                Icons.no_photography,
-                size: 100,
-                color: Colors.grey,
-              ),
+        child: buildImage(
+          image: product.image1920,
+        ),
       ),
     );
   }
@@ -245,7 +235,8 @@ class ProductDetails extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            value,
+            title,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -254,7 +245,10 @@ class ProductDetails extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            title,
+            value,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            maxLines: 2,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: Colors.grey[600],

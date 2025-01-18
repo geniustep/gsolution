@@ -449,19 +449,10 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
           final item = data[index];
           return InkWell(
             onTap: () {
-              // تحقق من الشروط الخاصة بالمنتجات داخل هذا العنصر فقط
-              // final allAvailable = data
-              //     .every((item) => item.productAvilabilityState == "available");
-              // final anyLate =
-              //     data.any((item) => item.productAvilabilityState == "late");
-
               final allAvailable = item.productAvilabilityState == "available";
               final anyLate = item.productAvilabilityState == "late";
 
-              // تطبيق الشروط الخاصة بهذا العنصر
               if (allAvailable) {
-                // جميع المنتجات متوفرة لهذا العنصر
-
                 Future.delayed(Duration(milliseconds: 300), () {
                   if (mounted) {
                     final newContext =
@@ -888,32 +879,13 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
     return Flexible(
       fit: FlexFit.loose,
       child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(10),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 5,
-            ),
-          ],
-        ),
         padding: const EdgeInsets.all(8),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: <Widget>[
-            StepItem(title: 'Devis', isActive: isDraft),
-            Expanded(
-              child: Divider(
-                color: Colors.green,
-                thickness: 2,
-                indent: 8,
-                endIndent: 8,
-              ),
-            ),
-            StepItem(title: 'Bon de Commande', isActive: isSale),
+            if (isDraft) StepItem(title: 'Devis', isActive: isDraft),
+            if (isSale) StepItem(title: 'Bon de Commande', isActive: isSale),
           ],
         ),
       ),
@@ -1035,23 +1007,12 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
               MainAxisAlignment.spaceEvenly, // توزيع المسافات بشكل متساوٍ
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            // المبلغ قبل الضرائب
             Flexible(
               child: Text(
-                'HT: ${widget.salesOrder.amountUntaxed.toStringAsFixed(2)} DH',
-                textAlign: TextAlign.center,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                ),
-              ),
-            ),
-            // الضرائب
-            Flexible(
-              child: Text(
-                'TVA: ${widget.salesOrder.amountTax.toStringAsFixed(2)} DH',
+                'Total TTC',
                 textAlign: TextAlign.center,
                 style: TextStyle(
+                  fontWeight: FontWeight.bold,
                   color: Colors.grey.shade700,
                   fontSize: 14,
                 ),
@@ -1060,7 +1021,7 @@ class _SaleOrderViewDetailleState extends State<SaleOrderViewDetaille> {
             // الإجمالي
             Flexible(
               child: Text(
-                'TTC: ${widget.salesOrder.amountTotal.toStringAsFixed(2)} DH',
+                '${widget.salesOrder.amountTotal.toStringAsFixed(2)} DH',
                 textAlign: TextAlign.center,
                 style: const TextStyle(
                   color: Colors.green,
@@ -1100,14 +1061,6 @@ class StepperWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           StepItem(title: 'Devis', isActive: true),
-          const Expanded(
-            child: Divider(
-              color: Colors.green,
-              thickness: 2,
-              indent: 8,
-              endIndent: 8,
-            ),
-          ),
           StepItem(title: 'Bon de Commande', isActive: false),
         ],
       ),
@@ -1206,7 +1159,7 @@ class StepItem extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: isActive ? Colors.green : Colors.grey.shade400,
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.1),
@@ -1225,7 +1178,7 @@ class StepItem extends StatelessWidget {
           ),
           const SizedBox(width: 6),
           Text(
-            title,
+            title.toUpperCase(),
             style: const TextStyle(
               color: Colors.white,
               fontSize: 12,

@@ -624,6 +624,30 @@ class Api {
     }
   }
 
+  static Future<void> downloadReportPdf({
+    required String url,
+    required OnResponse onResponse,
+    required OnError onError,
+  }) async {
+    final String path = '${Config.odooProdURL}$url';
+    try {
+      await request(
+        method: HttpMethod.get,
+        path: path,
+        params: createPayload({"context": getContext({})}),
+        onResponse: (data) {
+          onResponse(data);
+        },
+        onError: (error, details) {
+          print('Error fetching report: $error');
+          onError(error, details);
+        },
+      );
+    } catch (e) {
+      print(e);
+    }
+  }
+
   static Future<void> printReporthtml({
     required String reportName,
     required int recordId,

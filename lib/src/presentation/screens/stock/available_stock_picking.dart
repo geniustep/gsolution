@@ -71,63 +71,70 @@ class DeliveryAction {
                                   args: [data.id!],
                                   onResponse: (res) async {
                                     if (res) {
-                                      Get.back();
-                                      Get.dialog(
-                                        AlertDialog(
-                                          title: Text(
-                                            'Delivery Note',
-                                            style: TextStyle(
-                                                fontSize: 20,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          content: Text(
-                                            'Do you want to print this delivery note?',
-                                            style: TextStyle(fontSize: 16),
-                                          ),
-                                          actions: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Center(
-                                                  child: MylevatedButton(
-                                                    label: 'No',
-                                                    onPressed: () {
-                                                      onResponse(true);
-                                                    },
-                                                    icon: Icons.close,
-                                                    backgroundColor: Colors.red,
-                                                    textColor: Colors.white,
-                                                  ),
-                                                ),
-                                                Center(
-                                                  child: MylevatedButton(
-                                                    label: 'Print',
-                                                    onPressed: () {
-                                                      StockPickingModule
-                                                          .prinStockPickingPdf(
-                                                        id: data.id!,
-                                                        onResponse: (response) {
-                                                          onResponse(true);
-                                                          Future.delayed(
-                                                              Duration(
-                                                                  milliseconds:
-                                                                      300),
-                                                              () => fetchAndShowPdfDialog(
-                                                                  rootContexts,
-                                                                  response));
-                                                        },
-                                                      );
-                                                    },
-                                                    icon: Icons.print,
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                    textColor: Colors.white,
-                                                  ),
-                                                ),
-                                              ],
+                                      onResponse(true);
+                                      Future.delayed(
+                                        Duration(milliseconds: 300),
+                                        () => Get.dialog(
+                                          AlertDialog(
+                                            title: Text(
+                                              'Delivery Note',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight: FontWeight.bold),
                                             ),
-                                          ],
+                                            content: Text(
+                                              'Do you want to print this delivery note?',
+                                              style: TextStyle(fontSize: 16),
+                                            ),
+                                            actions: [
+                                              Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceEvenly,
+                                                children: [
+                                                  Center(
+                                                    child: MylevatedButton(
+                                                      label: 'No',
+                                                      onPressed: () {
+                                                        Get.back();
+                                                      },
+                                                      icon: Icons.close,
+                                                      backgroundColor:
+                                                          Colors.red,
+                                                      textColor: Colors.white,
+                                                    ),
+                                                  ),
+                                                  Center(
+                                                    child: MylevatedButton(
+                                                      label: 'Print',
+                                                      onPressed: () {
+                                                        Get.back();
+                                                        Future.delayed(
+                                                          Duration(
+                                                              milliseconds:
+                                                                  300),
+                                                          () => StockPickingModule
+                                                              .prinStockPickingPdf(
+                                                            id: data.id!,
+                                                            onResponse:
+                                                                (response) {
+                                                              fetchAndShowPdfDialog(
+                                                                  rootContexts,
+                                                                  response);
+                                                            },
+                                                          ),
+                                                        );
+                                                      },
+                                                      icon: Icons.print,
+                                                      backgroundColor:
+                                                          Colors.green,
+                                                      textColor: Colors.white,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                       );
                                     } else {
