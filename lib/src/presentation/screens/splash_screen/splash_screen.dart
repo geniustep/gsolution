@@ -41,40 +41,6 @@ class _SplashScreenState extends State<SplashScreen>
     loadFromFuture();
   }
 
-  // Future<void> loadFromFuture() async {
-  //   try {
-  //     // إظهار مؤشر التقدم إذا لزم الأمر
-  //     print("Loading data...");
-
-  //     // تنفيذ جميع الطلبات بالتوازي
-  //     final results = await Future.wait([
-  //       _apiController.getSettingsOdooController(
-  //         onResponse: (response) => response,
-  //       ),
-  //       _apiController.getResGroupsController(),
-  //       _apiController.getProductsController(),
-  //       _apiController.getCategoryProductsController(),
-  //       _apiController.getSalesController(),
-  //       _apiController.getSalesLineController(),
-  //       _apiController.getPartnersController(),
-  //       _apiController.getAccountMove(),
-  //       _apiController.getAccountJournal()
-  //     ]);
-
-  //     // معالجة النتائج إذا لزم الأمر (اختياري)
-  //     print("All data loaded successfully!");
-  //     for (var result in results) {
-  //       setState(() {});
-  //       progress = 100;
-  //       isReady.value = true;
-  //     }
-  //   } catch (e) {
-  //     // إدارة الأخطاء
-  //     print("Error loading data: $e");
-  //     handleApiError(e); // دالة لمعالجة الأخطاء إذا كانت لديك
-  //   }
-  // }
-
   Future<void> loadFromFuture() async {
     try {
       setState(() {});
