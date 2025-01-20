@@ -8,19 +8,20 @@ part of 'stock_move_model.dart';
 
 StockMoveModel _$StockMoveModelFromJson(Map<String, dynamic> json) =>
     StockMoveModel(
-      id: json['id'] as int?,
-      companyId:
-          (json['company_id'] as List<dynamic>?)?.map((e) => e as int).toList(),
+      id: (json['id'] as num?)?.toInt(),
+      companyId: (json['company_id'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
       name: json['name'] as String?,
       state: json['state'] as String?,
       pickingTypeId: (json['picking_type_id'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
       locationId: (json['location_id'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
       locationDestId: (json['location_dest_id'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
       scrapped: json['scrapped'] as bool?,
       pickingCode: json['picking_code'] as String?,
@@ -32,12 +33,13 @@ StockMoveModel _$StockMoveModelFromJson(Map<String, dynamic> json) =>
       hasMoveLines: json['has_move_lines'] as bool?,
       isLocked: json['is_locked'] as bool?,
       productUomCategoryId: (json['product_uom_category_id'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
       hasTracking: json['has_tracking'] as String?,
       displayAssignSerial: json['display_assign_serial'] as bool?,
-      productId:
-          (json['product_id'] as List<dynamic>?)?.map((e) => e as int).toList(),
+      productId: (json['product_id'] as List<dynamic>?)
+          ?.map((e) => (e as num).toInt())
+          .toList(),
       descriptionPicking: json['description_picking'],
       dateExpected: json['date_expected'] as String?,
       isInitialDemandEditable: json['is_initial_demand_editable'] as bool?,
@@ -46,7 +48,7 @@ StockMoveModel _$StockMoveModelFromJson(Map<String, dynamic> json) =>
       reservedAvailability: (json['reserved_availability'] as num?)?.toDouble(),
       quantityDone: (json['quantity_done'] as num?)?.toDouble(),
       productUom: (json['product_uom'] as List<dynamic>?)
-          ?.map((e) => e as int)
+          ?.map((e) => (e as num).toInt())
           .toList(),
     );
 

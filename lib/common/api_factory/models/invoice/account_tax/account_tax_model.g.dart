@@ -13,7 +13,7 @@ AccountTaxModel _$AccountTaxModelFromJson(Map<String, dynamic> json) =>
       amountType: json['amount_type'],
       analytic: json['analytic'],
       displayName: json['display_name'],
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       name: json['name'],
       description: json['description'],
       cashBasisBaseAccountId: json['cash_basis_base_account_id'],

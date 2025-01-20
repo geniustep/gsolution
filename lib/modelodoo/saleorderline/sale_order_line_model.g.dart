@@ -1,22 +1,25 @@
-
+// GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'sale_order_line_model.dart';
 
+// **************************************************************************
+// JsonSerializableGenerator
+// **************************************************************************
 
-SaleOrderLineModel _$SaleOrderLineModelFromJson(Map<String, dynamic> json) => SaleOrderLineModel(
-orderId: json['order_id'] as dynamic,
-name: json['name'] as dynamic,
-productUomQty: json['product_uom_qty'] as dynamic,
-priceUnit: json['price_unit'] as dynamic,
-customerLead: json['customer_lead'] as dynamic,
-);
-
+SaleOrderLineModel _$SaleOrderLineModelFromJson(Map<String, dynamic> json) =>
+    SaleOrderLineModel(
+      orderId: json['orderId'],
+      name: json['name'],
+      productUomQty: json['productUomQty'],
+      priceUnit: json['priceUnit'],
+      customerLead: json['customerLead'],
+    );
 
 Map<String, dynamic> _$SaleOrderLineModelToJson(SaleOrderLineModel instance) =>
-<String, dynamic>{
-'order_id': instance.orderId,
-'name': instance.name,
-'product_uom_qty': instance.productUomQty,
-'price_unit': instance.priceUnit,
-'customer_lead': instance.customerLead,
-};
+    <String, dynamic>{
+      'orderId': instance.orderId,
+      'name': instance.name,
+      'productUomQty': instance.productUomQty,
+      'priceUnit': instance.priceUnit,
+      'customerLead': instance.customerLead,
+    };

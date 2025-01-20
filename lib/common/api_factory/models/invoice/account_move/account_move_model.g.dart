@@ -241,7 +241,7 @@ Map<String, dynamic> _$AccountMoveModelToJson(AccountMoveModel instance) =>
 SalesAdvancePaymentInvoice _$SalesAdvancePaymentInvoiceFromJson(
         Map<String, dynamic> json) =>
     SalesAdvancePaymentInvoice(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       count: json['count'],
       advancePaymentMethod: json['advance_payment_method'],
       hasDownPayments: json['has_down_payments'],

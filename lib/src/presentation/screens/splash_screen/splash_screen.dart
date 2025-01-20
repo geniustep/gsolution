@@ -43,6 +43,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   Future<void> loadFromFuture() async {
     try {
+      _apiController.loadProducts();
       setState(() {});
       progress = 10;
       await _apiController.getResGroupsController(

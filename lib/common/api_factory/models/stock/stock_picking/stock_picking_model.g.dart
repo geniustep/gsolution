@@ -8,7 +8,7 @@ part of 'stock_picking_model.dart';
 
 StockPickingModel _$StockPickingModelFromJson(Map<String, dynamic> json) =>
     StockPickingModel(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       isLocked: json['isLocked'] as bool?,
       showMarkAsTodo: json['show_mark_as_todo'],
       showCheckAvailability: json['show_check_availability'],
@@ -31,6 +31,7 @@ StockPickingModel _$StockPickingModelFromJson(Map<String, dynamic> json) =>
       backorderId: json['backorder_id'],
       scheduledDate: json['scheduled_date'] as String?,
       dateDone: json['date_done'],
+      dateDeadline: json['date_deadline'],
       origin: json['origin'],
       ownerId: json['owner_id'],
       moveLineNosuggestIds: json['move_line_nosuggest_ids'],
@@ -49,12 +50,12 @@ StockPickingModel _$StockPickingModelFromJson(Map<String, dynamic> json) =>
       messageFollowerIds: json['message_follower_ids'],
       activityIds: json['activity_ids'],
       messageIds: json['message_ids'],
-      messageAttachmentCount: json['message_attachment_count'],
+      messageAttachmentCount:
+          (json['message_attachment_count'] as num?)?.toInt(),
       displayName: json['display_name'] as String?,
       stockMoveLine: json['stock_move_line'],
       productAvilabilityState: json['products_availability_state'],
       productAvilability: json['products_availability'],
-      dateDeadline: json['date_deadline'],
     );
 
 Map<String, dynamic> _$StockPickingModelToJson(StockPickingModel instance) =>
@@ -82,6 +83,7 @@ Map<String, dynamic> _$StockPickingModelToJson(StockPickingModel instance) =>
       'backorder_id': instance.backorderId,
       'scheduled_date': instance.scheduledDate,
       'date_done': instance.dateDone,
+      'date_deadline': instance.dateDeadline,
       'origin': instance.origin,
       'owner_id': instance.ownerId,
       'move_line_nosuggest_ids': instance.moveLineNosuggestIds,
@@ -104,13 +106,12 @@ Map<String, dynamic> _$StockPickingModelToJson(StockPickingModel instance) =>
       'stock_move_line': instance.stockMoveLine,
       'products_availability_state': instance.productAvilabilityState,
       'products_availability': instance.productAvilability,
-      'date_deadline': instance.dateDeadline,
     };
 
 StockImmediatTransfer _$StockImmediatTransferFromJson(
         Map<String, dynamic> json) =>
     StockImmediatTransfer(
-      id: json['id'] as int?,
+      id: (json['id'] as num?)?.toInt(),
       lastUpdate: json['__last_update'],
       createDate: json['create_date'],
       createUid: json['create_uid'],

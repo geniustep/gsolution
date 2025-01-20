@@ -3,6 +3,7 @@ import 'package:gsolution/common/api_factory/models/invoice/account_move_line/ac
 import 'package:gsolution/common/api_factory/models/resgroups/res_groups_model.dart';
 import 'package:gsolution/common/api_factory/models/resgroups/res_groups_module.dart';
 import 'package:gsolution/common/api_factory/modules/settings_odoo.dart';
+import 'package:gsolution/common/config/hive/hive_service.dart';
 import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 
@@ -17,6 +18,12 @@ class Controller extends GetxController {
   var settingsOdoo = ResConfigSettingModel().obs;
   var resGroups = <ResGroupsModel>[].obs;
   var accountMoveLine = <AccountMoveLineModel>[].obs;
+
+  @override
+  void onInit() {
+    super.onInit();
+    loadProducts();
+  }
 
 // Settings Odooo
   Future<void> getSettingsOdooController({OnResponse? onResponse}) async {
@@ -98,6 +105,30 @@ class Controller extends GetxController {
   }
 
 // products
+  Future<void> loadProducts() async {
+    List<ProductModel> cachedProducts = HiveService.getProducts();
+    if (cachedProducts.isNotEmpty) {
+      products.addAll(cachedProducts);
+    } else {
+      fetchProductsFromOdoo();
+    }
+  }
+
+  Future<void> fetchProductsFromOdoo() async {
+    await ProductModule.searchReadProducts(
+      onResponse: (response) async {
+        try {
+          products.clear();
+          products.addAll(response);
+          await HiveService.saveProducts(response);
+        } catch (e) {
+          print("Error fetching products: \$e");
+          handleApiError(e);
+        }
+      },
+    );
+  }
+
   Future<void> getProductsController({OnResponse? onResponse}) async {
     await ProductModule.searchReadProducts(
       onResponse: (response) {

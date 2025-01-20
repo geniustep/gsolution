@@ -54,8 +54,8 @@ class _ProductListSectionState extends State<ProductListSection> {
           itemBuilder: (context, index) {
             final int id;
             final product = widget.productList[index];
-            if (product.product_tmpl_id != null) {
-              id = product.product_tmpl_id[0];
+            if (product.productTmplId != null) {
+              id = product.productTmplId[0];
             } else {
               id = product.id;
             }
@@ -139,14 +139,14 @@ class _ProductListSectionState extends State<ProductListSection> {
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Text(
-                                        "Stock: ${product.qty_available}",
+                                        "Stock: ${product.qtyAvailable}",
                                         style: GoogleFonts.nunito(),
                                       ),
                                       const SizedBox(
                                         width: 10,
                                       ),
                                       Text(
-                                        "Stock Virtual: ${product.virtual_available}",
+                                        "Stock Virtual: ${product.virtualAvailable}",
                                         style: GoogleFonts.nunito(),
                                       ),
                                     ],
@@ -230,10 +230,10 @@ class _ProductListSectionState extends State<ProductListSection> {
                                                   if (response) {
                                                     PrefUtils.products
                                                         .removeWhere((p) {
-                                                      if (p.product_tmpl_id !=
+                                                      if (p.productTmplId !=
                                                               null &&
                                                           id ==
-                                                              p.product_tmpl_id[
+                                                              p.productTmplId[
                                                                   0]) {
                                                         return true;
                                                       } else if (id == p.id) {

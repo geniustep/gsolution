@@ -8,8 +8,8 @@ part of 'res_groups_model.dart';
 
 ResGroupsModel _$ResGroupsModelFromJson(Map<String, dynamic> json) =>
     ResGroupsModel(
-      id: json['id'],
-      name: json['name'],
+      id: (json['id'] as num?)?.toInt(),
+      name: json['name'] as String?,
       users: json['users'],
     );
 

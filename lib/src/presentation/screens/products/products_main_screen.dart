@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:gsolution/common/api_factory/models/product/product_model.dart';
-import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/common/widgets/BarcodeScannerPage.dart';
 import 'package:gsolution/src/presentation/screens/products/products_sections/product-list_section.dart';
 import 'package:gsolution/src/presentation/widgets/drawer/dashboard_drawer.dart';
 import 'package:gsolution/src/presentation/widgets/floating_aciton_button/custom_floating_action_button.dart';
 import 'package:gsolution/src/routes/app_routes.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:sidebarx/sidebarx.dart';
 
 class ProductsMainScreen extends StatefulWidget {
@@ -26,7 +26,8 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
   final TextEditingController searchController = TextEditingController();
   late TabController _tabController;
   final List<String> categories = <String>[];
-  final RxList<ProductModel> products = PrefUtils.products; // المنتجات الأصلية
+  final RxList<ProductModel> products =
+      <ProductModel>[].obs; // المنتجات الأصلية
   final RxList<ProductModel> filteredProducts =
       <ProductModel>[].obs; // المنتجات المفلترة
   final RxBool isSearching = false.obs; // حالة البحث
@@ -34,20 +35,14 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
   @override
   void initState() {
     super.initState();
-    _loadProducts();
-    filteredProducts.assignAll(products); // بدء القائمة بنفس المنتجات الأصلية
-
-    // مستمع لتغيير التبويبة
-    _tabController.addListener(() {
-      if (!isSearching.value) {
-        final selectedCategory = categories[_tabController.index];
-        _filterByCategory(selectedCategory);
-      }
-    });
+    products.assignAll(Hive.box<ProductModel>('productsBox').values.toList());
+    if (products.isNotEmpty) {
+      _loadProducts();
+      filteredProducts.assignAll(products);
+    }
   }
 
   void _loadProducts() {
-    // تجهيز التصنيفات من products.categId[1]
     categories.addAll(
       products
           .map((product) => (product.categId[1] ?? "Uncategorized").toString())
@@ -55,17 +50,25 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
           .cast<String>(),
     );
 
-    // إعداد TabController بناءً على عدد التصنيفات
     _tabController = TabController(length: categories.length, vsync: this);
+
+    _tabController.addListener(() {
+      if (!isSearching.value && _tabController.index < categories.length) {
+        final selectedCategory = categories[_tabController.index];
+        _filterByCategory(selectedCategory);
+      }
+    });
   }
 
   void _filterByCategory(String category) {
-    filteredProducts.assignAll(
-      products.where((product) {
-        final productCategory = product.categId[1] ?? "Uncategorized";
-        return productCategory == category;
-      }).toList(),
-    );
+    final filteredList = products.where((product) {
+      final productCategory = product.categId[1] ?? "Uncategorized";
+      return productCategory == category;
+    }).toList();
+
+    filteredProducts.clear(); // مسح القائمة المفلترة قبل التحديث
+    filteredProducts.addAll(filteredList); // تحديث القائمة الجديدة
+    filteredProducts.refresh(); // 🔥 إجبار GetX على تحديث الواجهة
   }
 
   Future<void> scanBarcode() async {
@@ -73,9 +76,9 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
 
     if (barcode != null && barcode.isNotEmpty) {
       searchController.text = barcode;
-      filter.value = barcode; 
-      isSearching.value = true; 
-      _searchProducts(barcode); 
+      filter.value = barcode;
+      isSearching.value = true;
+      _searchProducts(barcode);
       Get.snackbar(
         "Scan Cancelled",
         "No barcode was scanned.",
@@ -86,22 +89,23 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
 
   void _searchProducts(String value) {
     if (value.isEmpty) {
-      // عرض جميع المنتجات عند عدم وجود نص بحث
       filteredProducts.assignAll(products);
       isSearching.value = false;
     } else {
-      filteredProducts.assignAll(
-        products.where((product) {
-          final nameMatch =
-              product.name.toLowerCase().contains(value.toLowerCase());
-          final barcodeMatch = product.barcode != null &&
-              product.barcode is String &&
-              (product.barcode as String)
-                  .toLowerCase()
-                  .contains(value.toLowerCase());
-          return nameMatch || barcodeMatch;
-        }).toList(),
-      );
+      final filteredList = products.where((product) {
+        final nameMatch =
+            product.name.toLowerCase().contains(value.toLowerCase());
+        final barcodeMatch = product.barcode != null &&
+            product.barcode is String &&
+            (product.barcode as String)
+                .toLowerCase()
+                .contains(value.toLowerCase());
+        return nameMatch || barcodeMatch;
+      }).toList();
+
+      filteredProducts.clear();
+      filteredProducts.addAll(filteredList);
+      filteredProducts.refresh(); // 🔥 إجبار GetX على تحديث الواجهة
     }
   }
 

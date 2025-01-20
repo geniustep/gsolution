@@ -207,7 +207,7 @@ class ProductDetails extends StatelessWidget {
         children: [
           _buildInfoCard("Pack", product.volume?.toString() ?? "N/A"),
           _buildInfoCard(
-              "Sales", "${product.sales_count?.toString() ?? "0"} sold"),
+              "Sales", "${product.salesCount?.toString() ?? "0"} sold"),
           _buildInfoCard("Unity", "${product.name ?? "N/A"}"),
         ],
       ),
