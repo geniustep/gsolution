@@ -9,7 +9,7 @@ Widget buildImage({dynamic image, double? width = 100, double? height = 200}) {
         return _buildImageWidget(
           widget: Image.memory(
             imageBytes,
-            fit: BoxFit.cover,
+            fit: BoxFit.fitWidth,
             errorBuilder: (context, error, stackTrace) {
               return _errorWidget(height: height, width: width);
             },

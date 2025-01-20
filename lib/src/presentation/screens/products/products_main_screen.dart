@@ -31,6 +31,8 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
   final RxList<ProductModel> filteredProducts =
       <ProductModel>[].obs; // المنتجات المفلترة
   final RxBool isSearching = false.obs; // حالة البحث
+  final RxMap<String, List<ProductModel>> productIndex =
+      <String, List<ProductModel>>{}.obs;
 
   @override
   void initState() {
@@ -39,6 +41,23 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
     if (products.isNotEmpty) {
       _loadProducts();
       filteredProducts.assignAll(products);
+      _buildIndex(); // بناء الفهرس بعد تحميل البيانات
+    }
+  }
+
+  void _buildIndex() {
+    productIndex.clear();
+    for (var product in products) {
+      final key = product.name.toLowerCase();
+
+      if (productIndex.containsKey(key)) {
+        productIndex[key]!
+            .add(product); // 🔹 إذا كان الاسم موجودًا، أضف المنتج إلى القائمة
+      } else {
+        productIndex[key] = [
+          product
+        ]; // 🔹 إذا لم يكن الاسم موجودًا، أنشئ قائمة جديدة
+      }
     }
   }
 
@@ -92,21 +111,47 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
       filteredProducts.assignAll(products);
       isSearching.value = false;
     } else {
-      final filteredList = products.where((product) {
-        final nameMatch =
-            product.name.toLowerCase().contains(value.toLowerCase());
-        final barcodeMatch = product.barcode != null &&
+      final searchKey = value.toLowerCase();
+
+      // 🔥 البحث في الاسم والباركود
+      final results = <ProductModel>[];
+
+      // البحث في الفهرس
+      productIndex.forEach((key, productList) {
+        if (key.contains(searchKey)) {
+          results.addAll(productList); // 🔹 إضافة كل المنتجات التي تطابق البحث
+        }
+      });
+
+      // البحث في الباركود
+      final barcodeResults = products.where((product) {
+        return product.barcode != null &&
             product.barcode is String &&
-            (product.barcode as String)
-                .toLowerCase()
-                .contains(value.toLowerCase());
-        return nameMatch || barcodeMatch;
+            (product.barcode as String).toLowerCase().contains(searchKey);
       }).toList();
 
-      filteredProducts.clear();
-      filteredProducts.addAll(filteredList);
-      filteredProducts.refresh(); // 🔥 إجبار GetX على تحديث الواجهة
+      results.addAll(barcodeResults);
+
+      filteredProducts.assignAll(results);
+      filteredProducts.refresh();
     }
+  }
+
+  void _addProduct(ProductModel product) {
+    products.add(product);
+
+    final key = product.name.toLowerCase();
+
+    // 🔥 تحديث الفهرس لدعم المنتجات المتكررة
+    if (productIndex.containsKey(key)) {
+      productIndex[key]!
+          .add(product); // 🔹 إذا كان الاسم موجودًا، أضف المنتج إلى القائمة
+    } else {
+      productIndex[key] = [product]; // 🔹 إذا لم يكن موجودًا، أنشئ قائمة جديدة
+    }
+
+    filteredProducts.add(product);
+    Hive.box<ProductModel>('productsBox').put(product.name, product);
   }
 
   @override
@@ -194,8 +239,7 @@ class _ProductsMainScreenState extends State<ProductsMainScreen>
         onTap: () async {
           final newProduct = await Get.toNamed(AppRoutes.addProduct);
           if (newProduct != null && newProduct is ProductModel) {
-            products.add(newProduct);
-            filteredProducts.add(newProduct); // تحديث القائمة المفلترة
+            _addProduct(newProduct);
           }
         },
       ),
