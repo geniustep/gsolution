@@ -2,7 +2,9 @@ import 'package:gsolution/common/api_factory/models/invoice/account_journal/acco
 import 'package:gsolution/common/api_factory/models/invoice/account_move_line/account_move_line_module.dart';
 import 'package:gsolution/common/api_factory/models/resgroups/res_groups_model.dart';
 import 'package:gsolution/common/api_factory/models/resgroups/res_groups_module.dart';
+import 'package:gsolution/common/api_factory/modules/api_sync.dart';
 import 'package:gsolution/common/api_factory/modules/settings_odoo.dart';
+import 'package:gsolution/common/config/hive/hive_corpe.dart';
 import 'package:gsolution/common/config/hive/hive_service.dart';
 import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
@@ -18,11 +20,11 @@ class Controller extends GetxController {
   var settingsOdoo = ResConfigSettingModel().obs;
   var resGroups = <ResGroupsModel>[].obs;
   var accountMoveLine = <AccountMoveLineModel>[].obs;
+  var hiveProduct = HiveCorpe.hiveProduct;
 
   @override
   void onInit() {
     super.onInit();
-    loadProducts();
   }
 
 // Settings Odooo
@@ -106,11 +108,23 @@ class Controller extends GetxController {
 
 // products
   Future<void> loadProducts() async {
-    List<ProductModel> cachedProducts = HiveService.getProducts();
+    products.clear();
+    List<ProductModel> cachedProducts = await HiveService.getProducts();
     if (cachedProducts.isNotEmpty) {
-      products.addAll(cachedProducts);
+      await ApiSync.checkRecordInOdoo(
+          model: 'product.template',
+          onResponse: (response) async {
+            if (response != null && response is Map<String, dynamic>) {
+              int productLenght = response['model_length'];
+              if (cachedProducts.length == productLenght) {
+                products.addAll(cachedProducts);
+              } else {
+                await fetchProductsFromOdoo();
+              }
+            }
+          });
     } else {
-      fetchProductsFromOdoo();
+      await fetchProductsFromOdoo();
     }
   }
 
@@ -120,6 +134,9 @@ class Controller extends GetxController {
         try {
           products.clear();
           products.addAll(response);
+          await hiveProduct.clearData(
+            onResponse: (response) {},
+          );
           await HiveService.saveProducts(response);
         } catch (e) {
           print("Error fetching products: \$e");

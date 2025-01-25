@@ -10,6 +10,8 @@ class Config {
   // static const String odooDevURL = "http://207.154.252.42:8069/";
   // static const String odooProdURL = "http://207.154.252.42:8069/";
   // static const String odooUATURL = "http://207.154.252.42:8069/";
+  //webhook FastAPI URLS
+  static const String fastAPIURL = "https://fastapi.propanel.ma/";
 
   /// SelfSignedCert:
   static const selfSignedCert = false;

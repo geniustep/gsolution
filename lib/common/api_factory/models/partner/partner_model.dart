@@ -1,167 +1,167 @@
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'partner_model.g.dart';
 
+@HiveType(typeId: 2)
 @JsonSerializable()
 class PartnerModel {
   @JsonKey(name: 'id')
+  @HiveField(0)
   dynamic id;
+
   @JsonKey(name: 'same_vat_partner_id')
+  @HiveField(1)
   dynamic sameVatPartnerId;
+
   @JsonKey(name: 'partner_gid')
+  @HiveField(2)
   dynamic partnerGid;
+
   @JsonKey(name: 'additional_info')
+  @HiveField(4)
   dynamic additionalInfo;
+
   @JsonKey(name: 'sale_order_count')
+  @HiveField(5)
   dynamic saleOrderCount;
+
   @JsonKey(name: 'total_invoiced')
+  @HiveField(6)
   dynamic totalInvoiced;
+
   @JsonKey(name: 'payment_token_count')
+  @HiveField(7)
   dynamic paymentTokenCount;
+
   @JsonKey(name: 'image_512')
+  @HiveField(8)
   dynamic image_512;
+
   @JsonKey(name: 'image_256')
+  @HiveField(9)
   dynamic image_256;
+
   @JsonKey(name: 'image_1920')
+  @HiveField(10)
   dynamic image1920;
+
   @JsonKey(name: 'image_128')
+  @HiveField(11)
   dynamic image_128;
+
   @JsonKey(name: '__last_update')
+  @HiveField(12)
   dynamic sLastUpdate;
+
   @JsonKey(name: 'is_company')
+  @HiveField(13)
   bool? isCompany;
+
   @JsonKey(name: 'commercial_partner_id')
+  @HiveField(14)
   dynamic commercialPartnerId;
+
   @JsonKey(name: 'active')
+  @HiveField(15)
   dynamic active;
+
   @JsonKey(name: 'company_type')
+  @HiveField(16)
   dynamic companyType;
+
   @JsonKey(name: 'name')
+  @HiveField(17)
   dynamic name;
+
   @JsonKey(name: 'parent_id')
+  @HiveField(18)
   dynamic parentId;
+
   @JsonKey(name: 'company_name')
+  @HiveField(19)
   dynamic companyName;
+
   @JsonKey(name: 'type')
+  @HiveField(20)
   dynamic type;
+
   @JsonKey(name: 'street')
+  @HiveField(21)
   dynamic street;
+
   @JsonKey(name: 'street2')
+  @HiveField(22)
   dynamic street2;
+
   @JsonKey(name: 'city')
+  @HiveField(23)
   dynamic city;
+
   @JsonKey(name: 'state_id')
+  @HiveField(24)
   dynamic stateId;
+
   @JsonKey(name: 'zip')
+  @HiveField(25)
   dynamic zip;
+
   @JsonKey(name: 'country_id')
+  @HiveField(26)
   dynamic countryId;
+
   @JsonKey(name: 'vat')
+  @HiveField(27)
   dynamic vat;
+
   @JsonKey(name: 'function')
+  @HiveField(28)
   dynamic function;
+
   @JsonKey(name: 'phone')
+  @HiveField(29)
   dynamic phone;
+
   @JsonKey(name: 'mobile')
+  @HiveField(30)
   dynamic mobile;
-  @JsonKey(name: 'phone_sanitized')
-  dynamic phoneSanitized;
-  @JsonKey(name: 'userIds')
-  dynamic userIds;
-  @JsonKey(name: 'is_blacklisted')
-  bool? isBlacklisted;
+
   @JsonKey(name: 'email')
+  @HiveField(31)
   dynamic email;
+
   @JsonKey(name: 'website')
+  @HiveField(32)
   dynamic website;
-  @JsonKey(name: 'title')
-  dynamic title;
-  @JsonKey(name: 'active_lang_count')
-  dynamic activeLangCount;
-  @JsonKey(name: 'lang')
-  dynamic lang;
-  @JsonKey(name: 'categoryId')
-  dynamic categoryId;
-  @JsonKey(name: 'child_ids')
-  dynamic childIds;
-  @JsonKey(name: 'user_id')
-  dynamic userId;
-  @JsonKey(name: 'team_id')
-  dynamic teamId;
-  @JsonKey(name: 'property_payment_term_id')
-  dynamic propertyPaymentTermId;
-  @JsonKey(name: 'property_supplier_payment_term_id')
-  dynamic propertySupplierPaymentTermId;
-  @JsonKey(name: 'property_account_position_id')
-  dynamic propertyAccountPositionId;
-  @JsonKey(name: 'ref')
-  dynamic ref;
-  @JsonKey(name: 'company_id')
-  dynamic companyId;
-  @JsonKey(name: 'industry_id')
-  dynamic industryId;
-  @JsonKey(name: 'property_stock_customer')
-  dynamic propertyStockCustomer;
-  @JsonKey(name: 'property_stock_supplier')
-  dynamic propertyStockSupplier;
-  @JsonKey(name: 'bankIds')
-  dynamic bankIds;
-  @JsonKey(name: 'currency_id')
-  dynamic currencyId;
-  @JsonKey(name: 'property_account_receivable_id')
-  dynamic propertyAccountReceivableId;
-  @JsonKey(name: 'property_account_payable_id')
-  dynamic propertyAccountPayableId;
-  @JsonKey(name: 'comment')
-  dynamic comment;
-  @JsonKey(name: 'sale_warn')
-  dynamic saleWarn;
-  @JsonKey(name: 'sale_warn_msg')
-  dynamic saleWarnMsg;
-  @JsonKey(name: 'invoice_warn')
-  dynamic invoiceWarn;
-  @JsonKey(name: 'invoice_warn_msg')
-  dynamic invoiceWarnMsg;
-  @JsonKey(name: 'picking_warn')
-  dynamic pickingWarn;
-  @JsonKey(name: 'picking_warn_msg')
-  dynamic pickingWarnMsg;
-  @JsonKey(name: 'date_localization')
-  dynamic dateLocalization;
-  @JsonKey(name: 'partner_latitude')
-  dynamic partnerLatitude;
-  @JsonKey(name: 'partner_longitude')
-  dynamic partnerLongitude;
-  @JsonKey(name: 'secteur_to_partner')
-  dynamic secteurToPartner;
-  @JsonKey(name: 'employee_to_partner')
-  dynamic employeeToPartner;
-  @JsonKey(name: 'route_to_partners')
-  dynamic routeToPartners;
-  @JsonKey(name: 'centre_to_partner')
-  dynamic centreToPartner;
-  @JsonKey(name: 'city_to_partner')
-  dynamic cityToPartner;
-  @JsonKey(name: 'country_to_partner')
-  dynamic countryToPartner;
-  @JsonKey(name: 'message_follower_ids')
-  dynamic messageFollowerIds;
-  @JsonKey(name: 'activity_ids')
-  dynamic activityIds;
-  @JsonKey(name: 'message_ids')
-  dynamic messageIds;
-  @JsonKey(name: 'message_attachment_count')
-  dynamic messageAttachmentCount;
+
   @JsonKey(name: 'display_name')
+  @HiveField(33)
   dynamic displayName;
+
   @JsonKey(name: 'customer_rank')
+  @HiveField(34)
   dynamic customerRank;
 
+  @JsonKey(name: 'partner_latitude')
+  @HiveField(35)
+  dynamic partnerLatitude;
+
+  @JsonKey(name: 'partner_longitude')
+  @HiveField(36)
+  dynamic partnerLongitude;
+
+  @JsonKey(name: 'child_ids')
+  @HiveField(37)
+  dynamic childIds;
+
+  @HiveField(38)
+  int hiveWriteDate;
 
   PartnerModel({
     this.id,
     this.sameVatPartnerId,
     this.partnerGid,
+    this.hiveWriteDate = 0,
     this.additionalInfo,
     this.saleOrderCount,
     this.totalInvoiced,
@@ -189,56 +189,19 @@ class PartnerModel {
     this.function,
     this.phone,
     this.mobile,
-    this.phoneSanitized,
-    this.userIds,
-    this.isBlacklisted,
     this.email,
     this.website,
-    this.title,
-    this.activeLangCount,
-    this.lang,
-    this.categoryId,
-    this.childIds,
-    this.userId,
-    this.teamId,
-    this.propertyPaymentTermId,
-    this.propertySupplierPaymentTermId,
-    this.propertyAccountPositionId,
-    this.ref,
-    this.companyId,
-    this.industryId,
-    this.propertyStockCustomer,
-    this.propertyStockSupplier,
-    this.bankIds,
-    this.currencyId,
-    this.propertyAccountReceivableId,
-    this.propertyAccountPayableId,
-    this.comment,
-    this.saleWarn,
-    this.saleWarnMsg,
-    this.invoiceWarn,
-    this.invoiceWarnMsg,
-    this.pickingWarn,
-    this.pickingWarnMsg,
-    this.dateLocalization,
-    this.partnerLatitude,
-    this.partnerLongitude,
-    this.secteurToPartner,
-    this.employeeToPartner,
-    this.routeToPartners,
-    this.centreToPartner,
-    this.cityToPartner,
-    this.countryToPartner,
-    this.messageFollowerIds,
-    this.activityIds,
-    this.messageIds,
-    this.messageAttachmentCount,
     this.displayName,
     this.customerRank,
+    this.partnerLatitude,
+    this.partnerLongitude,
+    this.childIds,
   });
 
-  factory PartnerModel.fromJson(Map<String, dynamic> json) =>
-      _$PartnerModelFromJson(json);
+  factory PartnerModel.fromJson(Map<String, dynamic> json) {
+    return _$PartnerModelFromJson(json)
+      ..hiveWriteDate = DateTime.now().millisecondsSinceEpoch;
+  }
 
   Map<String, dynamic> toJson() => _$PartnerModelToJson(this);
 }

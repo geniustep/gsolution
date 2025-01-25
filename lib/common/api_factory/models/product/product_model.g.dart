@@ -47,13 +47,30 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       outgoingQty: fields[27] as dynamic,
       productTmplId: fields[28] as dynamic,
       defaultCode: fields[29] as dynamic,
+      taxesId: fields[30] as dynamic,
+      supplierTaxesId: fields[31] as dynamic,
+      type: fields[32] as dynamic,
+      uomId: fields[33] as dynamic,
+      uomPoId: fields[34] as dynamic,
+      tracking: fields[35] as dynamic,
+      saleOk: fields[36] as dynamic,
+      purchaseOk: fields[37] as dynamic,
+      companyId: fields[38] as dynamic,
+      routeIds: fields[39] as dynamic,
+      orderpointIds: fields[40] as dynamic,
+      propertyAccountIncomeId: fields[41] as dynamic,
+      propertyAccountExpenseId: fields[42] as dynamic,
+      barcodeNomenclatureId: fields[43] as dynamic,
+      salesCountLastMonth: fields[44] as dynamic,
+      salesCountLastYear: fields[45] as dynamic,
+      hiveWriteDate: fields[46] as dynamic,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductModel obj) {
     writer
-      ..writeByte(30)
+      ..writeByte(47)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -113,7 +130,41 @@ class ProductModelAdapter extends TypeAdapter<ProductModel> {
       ..writeByte(28)
       ..write(obj.productTmplId)
       ..writeByte(29)
-      ..write(obj.defaultCode);
+      ..write(obj.defaultCode)
+      ..writeByte(30)
+      ..write(obj.taxesId)
+      ..writeByte(31)
+      ..write(obj.supplierTaxesId)
+      ..writeByte(32)
+      ..write(obj.type)
+      ..writeByte(33)
+      ..write(obj.uomId)
+      ..writeByte(34)
+      ..write(obj.uomPoId)
+      ..writeByte(35)
+      ..write(obj.tracking)
+      ..writeByte(36)
+      ..write(obj.saleOk)
+      ..writeByte(37)
+      ..write(obj.purchaseOk)
+      ..writeByte(38)
+      ..write(obj.companyId)
+      ..writeByte(39)
+      ..write(obj.routeIds)
+      ..writeByte(40)
+      ..write(obj.orderpointIds)
+      ..writeByte(41)
+      ..write(obj.propertyAccountIncomeId)
+      ..writeByte(42)
+      ..write(obj.propertyAccountExpenseId)
+      ..writeByte(43)
+      ..write(obj.barcodeNomenclatureId)
+      ..writeByte(44)
+      ..write(obj.salesCountLastMonth)
+      ..writeByte(45)
+      ..write(obj.salesCountLastYear)
+      ..writeByte(46)
+      ..write(obj.hiveWriteDate);
   }
 
   @override
@@ -162,6 +213,23 @@ ProductModel _$ProductModelFromJson(Map<String, dynamic> json) => ProductModel(
       outgoingQty: json['outgoing_qty'],
       productTmplId: json['product_tmpl_id'],
       defaultCode: json['default_code'],
+      taxesId: json['taxes_id'],
+      supplierTaxesId: json['supplier_taxes_id'],
+      type: json['type'],
+      uomId: json['uom_id'],
+      uomPoId: json['uom_po_id'],
+      tracking: json['tracking'],
+      saleOk: json['sale_ok'],
+      purchaseOk: json['purchase_ok'],
+      companyId: json['company_id'],
+      routeIds: json['route_ids'],
+      orderpointIds: json['orderpoint_ids'],
+      propertyAccountIncomeId: json['property_account_income_id'],
+      propertyAccountExpenseId: json['property_account_expense_id'],
+      barcodeNomenclatureId: json['barcode_nomenclature_id'],
+      salesCountLastMonth: json['sales_count_last_month'],
+      salesCountLastYear: json['sales_count_last_year'],
+      hiveWriteDate: json['hiveWriteDate'],
     );
 
 Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
@@ -196,4 +264,21 @@ Map<String, dynamic> _$ProductModelToJson(ProductModel instance) =>
       'outgoing_qty': instance.outgoingQty,
       'product_tmpl_id': instance.productTmplId,
       'default_code': instance.defaultCode,
+      'taxes_id': instance.taxesId,
+      'supplier_taxes_id': instance.supplierTaxesId,
+      'type': instance.type,
+      'uom_id': instance.uomId,
+      'uom_po_id': instance.uomPoId,
+      'tracking': instance.tracking,
+      'sale_ok': instance.saleOk,
+      'purchase_ok': instance.purchaseOk,
+      'company_id': instance.companyId,
+      'route_ids': instance.routeIds,
+      'orderpoint_ids': instance.orderpointIds,
+      'property_account_income_id': instance.propertyAccountIncomeId,
+      'property_account_expense_id': instance.propertyAccountExpenseId,
+      'barcode_nomenclature_id': instance.barcodeNomenclatureId,
+      'sales_count_last_month': instance.salesCountLastMonth,
+      'sales_count_last_year': instance.salesCountLastYear,
+      'hiveWriteDate': instance.hiveWriteDate,
     };

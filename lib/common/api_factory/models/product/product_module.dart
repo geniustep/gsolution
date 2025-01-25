@@ -18,6 +18,7 @@ class ProductModule {
       "barcode",
       "default_code",
       "active",
+      "write_date",
     ];
 
     List<String> fieldsDebug = [
@@ -29,28 +30,30 @@ class ProductModule {
       "barcode",
       "default_code",
       "active",
+      "write_date",
+    ];
+
+    List<dynamic> domain = [
+      "&",
+      // "&",
+      // "&",
+      // ["sale_ok", "=", "True"],
+      // [
+      //   "type",
+      //   "in",
+      //   ["consu", "product"]
+      // ],
+      ["can_be_expensed", "!=", "True"],
+      ["active", "=", "True"],
     ];
 
     try {
       await Module.getRecordsController<ProductModel>(
         model: "product.product",
         fields: kReleaseMode ? fields : fieldsDebug,
-        domain: [
-          "&",
-          "&",
-          "&",
-          ["sale_ok", "=", "True"],
-          [
-            "type",
-            "in",
-            ["consu", "product"]
-          ],
-          ["can_be_expensed", "!=", "True"],
-          ["active", "=", "True"],
-        ],
+        domain: domain,
         fromJson: (data) => ProductModel.fromJson(data),
         onResponse: (response) {
-          print("Productos obtenidos: ${response.length}");
           onResponse!(response);
         },
       );
@@ -61,7 +64,8 @@ class ProductModule {
 
   static readProducts(
       {required List<int> ids,
-      required OnResponse<List<ProductModel>> onResponse}) {
+      required OnResponse<List<ProductModel>> onResponse,
+      OnError? onError}) {
     List<String> fields = [
       "product_variant_count",
       "is_product_variant",

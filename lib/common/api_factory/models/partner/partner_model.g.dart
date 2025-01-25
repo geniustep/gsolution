@@ -3,6 +3,155 @@
 part of 'partner_model.dart';
 
 // **************************************************************************
+// TypeAdapterGenerator
+// **************************************************************************
+
+class PartnerModelAdapter extends TypeAdapter<PartnerModel> {
+  @override
+  final int typeId = 2;
+
+  @override
+  PartnerModel read(BinaryReader reader) {
+    final numOfFields = reader.readByte();
+    final fields = <int, dynamic>{
+      for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
+    };
+    return PartnerModel(
+      id: fields[0] as dynamic,
+      sameVatPartnerId: fields[1] as dynamic,
+      partnerGid: fields[2] as dynamic,
+      hiveWriteDate: fields[38] as int,
+      additionalInfo: fields[4] as dynamic,
+      saleOrderCount: fields[5] as dynamic,
+      totalInvoiced: fields[6] as dynamic,
+      paymentTokenCount: fields[7] as dynamic,
+      image1920: fields[10] as dynamic,
+      image_128: fields[11] as dynamic,
+      image_512: fields[8] as dynamic,
+      image_256: fields[9] as dynamic,
+      sLastUpdate: fields[12] as dynamic,
+      isCompany: fields[13] as bool?,
+      commercialPartnerId: fields[14] as dynamic,
+      active: fields[15] as dynamic,
+      companyType: fields[16] as dynamic,
+      name: fields[17] as dynamic,
+      parentId: fields[18] as dynamic,
+      companyName: fields[19] as dynamic,
+      type: fields[20] as dynamic,
+      street: fields[21] as dynamic,
+      street2: fields[22] as dynamic,
+      city: fields[23] as dynamic,
+      stateId: fields[24] as dynamic,
+      zip: fields[25] as dynamic,
+      countryId: fields[26] as dynamic,
+      vat: fields[27] as dynamic,
+      function: fields[28] as dynamic,
+      phone: fields[29] as dynamic,
+      mobile: fields[30] as dynamic,
+      email: fields[31] as dynamic,
+      website: fields[32] as dynamic,
+      displayName: fields[33] as dynamic,
+      customerRank: fields[34] as dynamic,
+      partnerLatitude: fields[35] as dynamic,
+      partnerLongitude: fields[36] as dynamic,
+      childIds: fields[37] as dynamic,
+    );
+  }
+
+  @override
+  void write(BinaryWriter writer, PartnerModel obj) {
+    writer
+      ..writeByte(38)
+      ..writeByte(0)
+      ..write(obj.id)
+      ..writeByte(1)
+      ..write(obj.sameVatPartnerId)
+      ..writeByte(2)
+      ..write(obj.partnerGid)
+      ..writeByte(4)
+      ..write(obj.additionalInfo)
+      ..writeByte(5)
+      ..write(obj.saleOrderCount)
+      ..writeByte(6)
+      ..write(obj.totalInvoiced)
+      ..writeByte(7)
+      ..write(obj.paymentTokenCount)
+      ..writeByte(8)
+      ..write(obj.image_512)
+      ..writeByte(9)
+      ..write(obj.image_256)
+      ..writeByte(10)
+      ..write(obj.image1920)
+      ..writeByte(11)
+      ..write(obj.image_128)
+      ..writeByte(12)
+      ..write(obj.sLastUpdate)
+      ..writeByte(13)
+      ..write(obj.isCompany)
+      ..writeByte(14)
+      ..write(obj.commercialPartnerId)
+      ..writeByte(15)
+      ..write(obj.active)
+      ..writeByte(16)
+      ..write(obj.companyType)
+      ..writeByte(17)
+      ..write(obj.name)
+      ..writeByte(18)
+      ..write(obj.parentId)
+      ..writeByte(19)
+      ..write(obj.companyName)
+      ..writeByte(20)
+      ..write(obj.type)
+      ..writeByte(21)
+      ..write(obj.street)
+      ..writeByte(22)
+      ..write(obj.street2)
+      ..writeByte(23)
+      ..write(obj.city)
+      ..writeByte(24)
+      ..write(obj.stateId)
+      ..writeByte(25)
+      ..write(obj.zip)
+      ..writeByte(26)
+      ..write(obj.countryId)
+      ..writeByte(27)
+      ..write(obj.vat)
+      ..writeByte(28)
+      ..write(obj.function)
+      ..writeByte(29)
+      ..write(obj.phone)
+      ..writeByte(30)
+      ..write(obj.mobile)
+      ..writeByte(31)
+      ..write(obj.email)
+      ..writeByte(32)
+      ..write(obj.website)
+      ..writeByte(33)
+      ..write(obj.displayName)
+      ..writeByte(34)
+      ..write(obj.customerRank)
+      ..writeByte(35)
+      ..write(obj.partnerLatitude)
+      ..writeByte(36)
+      ..write(obj.partnerLongitude)
+      ..writeByte(37)
+      ..write(obj.childIds)
+      ..writeByte(38)
+      ..write(obj.hiveWriteDate);
+  }
+
+  @override
+  int get hashCode => typeId.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PartnerModelAdapter &&
+          runtimeType == other.runtimeType &&
+          typeId == other.typeId;
+}
+
+// **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
@@ -10,6 +159,7 @@ PartnerModel _$PartnerModelFromJson(Map<String, dynamic> json) => PartnerModel(
       id: json['id'],
       sameVatPartnerId: json['same_vat_partner_id'],
       partnerGid: json['partner_gid'],
+      hiveWriteDate: (json['hiveWriteDate'] as num?)?.toInt() ?? 0,
       additionalInfo: json['additional_info'],
       saleOrderCount: json['sale_order_count'],
       totalInvoiced: json['total_invoiced'],
@@ -37,52 +187,13 @@ PartnerModel _$PartnerModelFromJson(Map<String, dynamic> json) => PartnerModel(
       function: json['function'],
       phone: json['phone'],
       mobile: json['mobile'],
-      phoneSanitized: json['phone_sanitized'],
-      userIds: json['userIds'],
-      isBlacklisted: json['is_blacklisted'] as bool?,
       email: json['email'],
       website: json['website'],
-      title: json['title'],
-      activeLangCount: json['active_lang_count'],
-      lang: json['lang'],
-      categoryId: json['categoryId'],
-      childIds: json['child_ids'],
-      userId: json['user_id'],
-      teamId: json['team_id'],
-      propertyPaymentTermId: json['property_payment_term_id'],
-      propertySupplierPaymentTermId: json['property_supplier_payment_term_id'],
-      propertyAccountPositionId: json['property_account_position_id'],
-      ref: json['ref'],
-      companyId: json['company_id'],
-      industryId: json['industry_id'],
-      propertyStockCustomer: json['property_stock_customer'],
-      propertyStockSupplier: json['property_stock_supplier'],
-      bankIds: json['bankIds'],
-      currencyId: json['currency_id'],
-      propertyAccountReceivableId: json['property_account_receivable_id'],
-      propertyAccountPayableId: json['property_account_payable_id'],
-      comment: json['comment'],
-      saleWarn: json['sale_warn'],
-      saleWarnMsg: json['sale_warn_msg'],
-      invoiceWarn: json['invoice_warn'],
-      invoiceWarnMsg: json['invoice_warn_msg'],
-      pickingWarn: json['picking_warn'],
-      pickingWarnMsg: json['picking_warn_msg'],
-      dateLocalization: json['date_localization'],
-      partnerLatitude: json['partner_latitude'],
-      partnerLongitude: json['partner_longitude'],
-      secteurToPartner: json['secteur_to_partner'],
-      employeeToPartner: json['employee_to_partner'],
-      routeToPartners: json['route_to_partners'],
-      centreToPartner: json['centre_to_partner'],
-      cityToPartner: json['city_to_partner'],
-      countryToPartner: json['country_to_partner'],
-      messageFollowerIds: json['message_follower_ids'],
-      activityIds: json['activity_ids'],
-      messageIds: json['message_ids'],
-      messageAttachmentCount: json['message_attachment_count'],
       displayName: json['display_name'],
       customerRank: json['customer_rank'],
+      partnerLatitude: json['partner_latitude'],
+      partnerLongitude: json['partner_longitude'],
+      childIds: json['child_ids'],
     );
 
 Map<String, dynamic> _$PartnerModelToJson(PartnerModel instance) =>
@@ -117,51 +228,12 @@ Map<String, dynamic> _$PartnerModelToJson(PartnerModel instance) =>
       'function': instance.function,
       'phone': instance.phone,
       'mobile': instance.mobile,
-      'phone_sanitized': instance.phoneSanitized,
-      'userIds': instance.userIds,
-      'is_blacklisted': instance.isBlacklisted,
       'email': instance.email,
       'website': instance.website,
-      'title': instance.title,
-      'active_lang_count': instance.activeLangCount,
-      'lang': instance.lang,
-      'categoryId': instance.categoryId,
-      'child_ids': instance.childIds,
-      'user_id': instance.userId,
-      'team_id': instance.teamId,
-      'property_payment_term_id': instance.propertyPaymentTermId,
-      'property_supplier_payment_term_id':
-          instance.propertySupplierPaymentTermId,
-      'property_account_position_id': instance.propertyAccountPositionId,
-      'ref': instance.ref,
-      'company_id': instance.companyId,
-      'industry_id': instance.industryId,
-      'property_stock_customer': instance.propertyStockCustomer,
-      'property_stock_supplier': instance.propertyStockSupplier,
-      'bankIds': instance.bankIds,
-      'currency_id': instance.currencyId,
-      'property_account_receivable_id': instance.propertyAccountReceivableId,
-      'property_account_payable_id': instance.propertyAccountPayableId,
-      'comment': instance.comment,
-      'sale_warn': instance.saleWarn,
-      'sale_warn_msg': instance.saleWarnMsg,
-      'invoice_warn': instance.invoiceWarn,
-      'invoice_warn_msg': instance.invoiceWarnMsg,
-      'picking_warn': instance.pickingWarn,
-      'picking_warn_msg': instance.pickingWarnMsg,
-      'date_localization': instance.dateLocalization,
-      'partner_latitude': instance.partnerLatitude,
-      'partner_longitude': instance.partnerLongitude,
-      'secteur_to_partner': instance.secteurToPartner,
-      'employee_to_partner': instance.employeeToPartner,
-      'route_to_partners': instance.routeToPartners,
-      'centre_to_partner': instance.centreToPartner,
-      'city_to_partner': instance.cityToPartner,
-      'country_to_partner': instance.countryToPartner,
-      'message_follower_ids': instance.messageFollowerIds,
-      'activity_ids': instance.activityIds,
-      'message_ids': instance.messageIds,
-      'message_attachment_count': instance.messageAttachmentCount,
       'display_name': instance.displayName,
       'customer_rank': instance.customerRank,
+      'partner_latitude': instance.partnerLatitude,
+      'partner_longitude': instance.partnerLongitude,
+      'child_ids': instance.childIds,
+      'hiveWriteDate': instance.hiveWriteDate,
     };

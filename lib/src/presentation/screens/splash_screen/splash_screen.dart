@@ -1,8 +1,11 @@
 import 'dart:async';
+import 'package:gsolution/common/api_factory/controllers/product_controller.dart';
 import 'package:gsolution/common/api_factory/models/resgroups/res_groups_model.dart';
+import 'package:gsolution/common/config/hive/hive_corpe.dart';
 import 'package:gsolution/common/config/import.dart';
 import 'package:gsolution/common/config/prefs/pref_utils.dart';
 import 'package:gsolution/src/routes/app_routes.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -19,6 +22,7 @@ class _SplashScreenState extends State<SplashScreen>
   final RxBool isReady = false.obs;
   int progress = 0;
   final Controller _apiController = Get.put(Controller());
+  final _apiControllerProduct = Get.put(ProductController());
   var products = <ProductModel>[].obs;
   var categoryProduct = <ProductCategoryModel>[].obs;
   var sales = <OrderModel>[].obs;
@@ -27,8 +31,11 @@ class _SplashScreenState extends State<SplashScreen>
   var accountMove = <AccountMoveModel>[].obs;
   var accountJournal = <AccountJournalModel>[].obs;
   var resGroups = <ResGroupsModel>[].obs;
+  late Box<ProductModel> productBox;
+
   @override
   void initState() {
+    initHive();
     super.initState();
 
     _controller = AnimationController(
@@ -37,13 +44,25 @@ class _SplashScreenState extends State<SplashScreen>
     );
     _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
     _controller.forward();
+    _apiControllerProduct.loadProducts();
+    // loadFromFuture();
+    // Api.webhookFetchOdoo(
+    //     model: 'product.template',
+    //     onResponse: (response) {
+    //       debugPrint(response);
+    //     },
+    //     onError: (e, d) {
+    //       debugPrint(e);
+    //     });
+  }
 
-    loadFromFuture();
+  initHive() async {
+    await HiveCorpe.initHive();
   }
 
   Future<void> loadFromFuture() async {
     try {
-      _apiController.loadProducts();
+      _apiControllerProduct.loadProducts();
       setState(() {});
       progress = 10;
       await _apiController.getResGroupsController(

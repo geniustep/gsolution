@@ -1,8 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:dio/io.dart';
 import 'package:flutter/foundation.dart';
 import 'package:gsolution/common/api_factory/api_end_points.dart';
 import 'package:gsolution/common/api_factory/dio_factory.dart';
@@ -15,6 +14,7 @@ import 'package:gsolution/src/authentication/models/user_model.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:open_file/open_file.dart';
+import 'package:http/http.dart' as http;
 
 enum ApiEnvironment { UAT, Dev, Prod }
 
@@ -471,6 +471,41 @@ class Api {
     );
   }
 
+// webSearchRead
+  static webSearchRead({
+    required String model,
+    List<String>? fields,
+    List<dynamic>? args,
+    Map<String, dynamic>? context,
+    Map<String, dynamic>? specification,
+    List<dynamic>? domain,
+    int offset = 0,
+    int limit = 0,
+    String order = "",
+    required OnResponse onResponse,
+    required OnError onError,
+  }) async {
+    if (fields != null) {
+      specification = {for (var field in fields) field: {}};
+    }
+
+    callKW(
+      model: model,
+      method: "web_search_read",
+      args: args ?? [],
+      kwargs: {
+        "context": context ?? {},
+        "specification": specification ?? {},
+        "domain": domain ?? [],
+        "offset": offset,
+        "limit": limit,
+        "order": order,
+      },
+      onResponse: onResponse,
+      onError: onError,
+    );
+  }
+
   // onchange
   static onChange({
     required String model,
@@ -684,5 +719,89 @@ class Api {
         handleApiError(error);
       },
     );
+  }
+
+  static webhookCheckOdoo({
+    required String model,
+    required OnResponse onResponse,
+    required OnError onError,
+  }) async {
+    Dio newDio = Dio();
+    final String path = '${Config.odooProdURL}${ApiEndPoints.check}/$model';
+
+    try {
+      final response = await newDio
+          .get("http://app.propanel.ma:8000/webhook/check/product.template");
+
+      if (response.statusCode == 200) {
+        onResponse(response.data);
+      }
+    } catch (e) {
+      if (e is DioException) {
+        print("❌ DioException Error: ${e.response?.statusCode}");
+        print("❌ DioException Data: ${e.response?.data}");
+      } else {
+        print("❌ Unknown Error: $e");
+      }
+    }
+  }
+
+  static webhookFetchOdoo({
+    required String model,
+    required OnResponse onResponse,
+    required OnError onError,
+  }) async {
+    final Dio _newDio = Dio();
+    final String path =
+        '${Config.fastAPIURL}${ApiEndPoints.fetchWebhook}/$model';
+
+    try {
+      final response = await _newDio.get(
+        path,
+        options: Options(headers: {"Content-Type": "application/json"}),
+      );
+
+      if (response.statusCode == 200) {
+        final data = response.data;
+        debugPrint("📢 Response Type: ${data.runtimeType}");
+        debugPrint("📢 Response Data: $data");
+
+        // ✅ تحويل `Map<String, dynamic>` إلى `String` إذا كان `onResponse` يتوقع `String`
+        if (data is Map<String, dynamic>) {
+          onResponse(data['data']); // ✅ تحويل إلى `String`
+        } else {
+          print("⚠️ Unexpected data format: $data");
+          onResponse(jsonEncode({"error": "Unexpected response format"}));
+        }
+      }
+    } catch (e) {
+      print("❌ Error fetching webhook data: $e");
+    }
+  }
+
+  static clearWebhookData({
+    required String model,
+    required OnResponse onResponse,
+    required OnError onError,
+  }) async {
+    final Dio _newDio = Dio();
+    final String path =
+        '${Config.odooProdURL}${ApiEndPoints.fetchWebhook}/$model/clear';
+
+    try {
+      final response = await _newDio.get(
+        path,
+        options: Options(headers: {"Content-Type": "application/json"}),
+      );
+
+      if (response.statusCode == 200 && response.data["status"] == "success") {
+        return response.data["data"];
+      } else {
+        return [];
+      }
+    } catch (e) {
+      print("❌ Error fetching webhook data: $e");
+      return [];
+    }
   }
 }
